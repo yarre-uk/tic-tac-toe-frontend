@@ -5,10 +5,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { api } from '#/lib/axios';
-import { cn } from '#/lib/utils';
-import { authStore } from '#/modules/auth/store';
-import type { TokenResponseDto } from '#/modules/auth/types';
+import { api } from '@/lib/axios';
+import { cn } from '@/lib/utils';
+import { authStore } from '@/modules/auth/store';
+import type { TokenResponseDto } from '@/modules/auth/types';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),

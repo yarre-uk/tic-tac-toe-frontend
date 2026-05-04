@@ -1,13 +1,12 @@
 import { create } from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
+import { Envs } from './env';
 import { isDefined } from './utils';
 
-import { authStore } from '#/modules/auth/store';
+import { authStore } from '@/modules/auth/store';
 
-const BASE_URL =
-  (import.meta.env.VITE_API_URL as string | undefined) ??
-  'http://localhost:3000';
+const BASE_URL = Envs.VITE_API_URL;
 
 export const api = create({ baseURL: BASE_URL, withCredentials: true });
 export const apiAuth = create({ baseURL: BASE_URL, withCredentials: true });
