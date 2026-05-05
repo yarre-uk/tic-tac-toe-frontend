@@ -5,6 +5,8 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import appCss from '../styles.css?url';
 
+import { useAuthRefresh } from '@/modules/auth';
+
 const queryClient = new QueryClient();
 
 export const Route = createRootRoute({
@@ -32,6 +34,12 @@ export const Route = createRootRoute({
   ssr: false,
 });
 
+function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+  useAuthRefresh();
+
+  return <>{children}</>;
+}
+
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
@@ -40,7 +48,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <AppShell>{children}</AppShell>
         </QueryClientProvider>
 
         <TanStackDevtools

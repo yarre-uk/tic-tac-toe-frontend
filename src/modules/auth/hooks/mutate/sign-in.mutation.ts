@@ -3,9 +3,14 @@ import { useMutation } from '@tanstack/react-query';
 import type { SignInDto, TokenResponseDto } from '../../types';
 
 import { api } from '@/lib/axios';
+import { authStore } from '@/modules/auth/store';
 import type { ApiResult } from '@/types';
 
-export const useSignInMutate = () => {
+export const useSignInMutation = () => {
+  'use no memo';
+
+  const { setAccessToken, setReady } = authStore();
+
   return useMutation({
     mutationFn: async (dto: SignInDto) => {
       const res = await api.post<ApiResult<TokenResponseDto>>(
@@ -14,6 +19,10 @@ export const useSignInMutate = () => {
       );
 
       return res.data.data;
+    },
+    onSuccess: (data) => {
+      setAccessToken(data.accessToken);
+      setReady(true);
     },
   });
 };

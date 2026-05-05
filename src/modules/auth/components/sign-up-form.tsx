@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
-import { useSignUpMutate } from '@/modules/auth/hooks';
+import { useSignUpMutation } from '@/modules/auth/hooks';
 import { authStore } from '@/modules/auth/store';
 import type { SignUpDto } from '@/modules/auth/types';
 
@@ -28,7 +28,7 @@ type FormValues = z.infer<typeof schema>;
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { isError, isPending, mutateAsync: signUp } = useSignUpMutate();
+  const { isError, isPending, mutateAsync: signUp } = useSignUpMutation();
   const { setAccessToken } = authStore();
 
   const {
