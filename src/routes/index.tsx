@@ -1,11 +1,15 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
 
 import { authStore } from '@/modules';
+import { useSignOutMutation } from '@/modules/auth/hooks';
 
 export const Route = createFileRoute('/')({ component: Home });
 
 function Home() {
+  'use no memo';
+
   const { accessToken, isAuthorized, isReady } = authStore();
+  const { mutate: signOut, isPending } = useSignOutMutation();
 
   return (
     <div className="p-8 text-center">
@@ -18,6 +22,11 @@ function Home() {
         <Link to="/sign-in">Sign In</Link>
         <Link to="/sign-up">Sign Up</Link>
       </p>
+      {isAuthorized() && (
+        <button onClick={() => signOut()} disabled={isPending}>
+          {isPending ? 'Signing out…' : 'Sign out'}
+        </button>
+      )}
     </div>
   );
 }
