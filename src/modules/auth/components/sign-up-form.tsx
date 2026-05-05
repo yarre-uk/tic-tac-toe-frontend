@@ -5,10 +5,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { api } from '@/lib/axios';
-import { clearObject, cn } from '@/lib/utils';
-import { authStore } from '@/modules/auth/store';
-import type { SignUpDto, TokenResponseDto } from '@/modules/auth/types';
+import { cn } from '@/lib/utils';
+import { useSignUpMutate } from '@/modules/auth/hooks';
+import type { SignUpDto } from '@/modules/auth/types';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),
@@ -27,29 +26,18 @@ type FormValues = z.infer<typeof schema>;
 
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setAccessToken } = authStore();
   const navigate = useNavigate();
+  const mutation = useSignUpMutate();
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    try {
-      const { data } = await api.post<TokenResponseDto>(
-        '/auth/sign-up',
-        clearObject(values) satisfies SignUpDto,
-      );
-      setAccessToken(data.accessToken);
-      await navigate({ to: '/' });
-    } catch {
-      setError('root', {
-        message: 'Registration failed. Nickname may already be taken.',
-      });
-    }
+    await mutation.mutateAsync(values satisfies SignUpDto);
+    await navigate({ to: '/' });
   };
 
   return (
@@ -125,20 +113,22 @@ export function SignUpForm() {
         )}
       </div>
 
-      {errors.root && (
-        <p className="text-sm text-red-400">{errors.root.message}</p>
+      {mutation.isError && (
+        <p className="text-sm text-red-400">
+          Registration failed. Nickname may already be taken.
+        </p>
       )}
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || mutation.isPending}
         className={cn(
           'rounded-lg px-4 py-2.5 text-sm font-semibold transition',
           'bg-(--lagoon) text-(--sand) hover:bg-(--lagoon-deep)',
           'disabled:cursor-not-allowed disabled:opacity-50',
         )}
       >
-        {isSubmitting ? 'Creating account…' : 'Create account'}
+        {mutation.isPending ? 'Creating account…' : 'Create account'}
       </button>
     </form>
   );

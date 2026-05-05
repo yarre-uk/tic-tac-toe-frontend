@@ -1225,6 +1225,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.100.9":
+  version: 5.100.9
+  resolution: "@tanstack/query-core@npm:5.100.9"
+  checksum: 10c0/119bcfa78f416562d64d6584c9354a0f6eec030818a1010428d4fbe8a8599075b3e45cacca09b166726aea9a159b09c5d24a5a0f55581f43cda007a48b5b4414
+  languageName: node
+  linkType: hard
+
 "@tanstack/react-devtools@npm:latest":
   version: 0.10.2
   resolution: "@tanstack/react-devtools@npm:0.10.2"
@@ -1236,6 +1243,17 @@ __metadata:
     react: ">=16.8"
     react-dom: ">=16.8"
   checksum: 10c0/46c58a218f0f81661b3480105d53fc1fc5f3e7fbc8aa00172e48321e350ec88ea03cb4fb29a59255ab957b6aaf1da9b11fdbd793d0627ec37c5b0c5317284661
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.100.9":
+  version: 5.100.9
+  resolution: "@tanstack/react-query@npm:5.100.9"
+  dependencies:
+    "@tanstack/query-core": "npm:5.100.9"
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 10c0/7e9af3334f6eada6fd0e030d19d77f62a2809d91a991caec68811e1e86aef9c93b8cb8fecfcf7efd9517fb1148f0df60fc4103d44cdd38accba991e70b6bb138
   languageName: node
   linkType: hard
 
@@ -6045,6 +6063,7 @@ __metadata:
     "@tanstack/eslint-config": "npm:latest"
     "@tanstack/eslint-plugin-query": "npm:^5.100.9"
     "@tanstack/react-devtools": "npm:latest"
+    "@tanstack/react-query": "npm:^5.100.9"
     "@tanstack/react-router": "npm:latest"
     "@tanstack/react-router-devtools": "npm:latest"
     "@tanstack/react-router-ssr-query": "npm:latest"

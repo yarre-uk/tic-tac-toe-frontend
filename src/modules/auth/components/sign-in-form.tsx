@@ -5,10 +5,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { api } from '@/lib/axios';
 import { cn } from '@/lib/utils';
-import { authStore } from '@/modules/auth/store';
-import type { SignInDto, TokenResponseDto } from '@/modules/auth/types';
+import { useSignInMutate } from '@/modules/auth/hooks';
+import type { SignInDto } from '@/modules/auth/types';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),
@@ -19,27 +18,18 @@ type FormValues = z.infer<typeof schema>;
 
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setAccessToken } = authStore();
   const navigate = useNavigate();
+  const mutation = useSignInMutate();
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    try {
-      const { data } = await api.post<TokenResponseDto>(
-        '/auth/sign-in',
-        values satisfies SignInDto,
-      );
-      setAccessToken(data.accessToken);
-      await navigate({ to: '/' });
-    } catch {
-      setError('root', { message: 'Invalid nickname or password' });
-    }
+    await mutation.mutateAsync(values satisfies SignInDto);
+    await navigate({ to: '/' });
   };
 
   return (
@@ -94,20 +84,20 @@ export function SignInForm() {
         )}
       </div>
 
-      {errors.root && (
-        <p className="text-sm text-red-400">{errors.root.message}</p>
+      {mutation.isError && (
+        <p className="text-sm text-red-400">Invalid nickname or password</p>
       )}
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || mutation.isPending}
         className={cn(
           'rounded-lg px-4 py-2.5 text-sm font-semibold transition',
           'bg-(--lagoon) text-(--sand) hover:bg-(--lagoon-deep)',
           'disabled:cursor-not-allowed disabled:opacity-50',
         )}
       >
-        {isSubmitting ? 'Signing in…' : 'Sign in'}
+        {mutation.isPending ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   );
