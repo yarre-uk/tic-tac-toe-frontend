@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
 import { useSignInMutate } from '@/modules/auth/hooks';
+import { authStore } from '@/modules/auth/store';
 import type { SignInDto } from '@/modules/auth/types';
 
 const schema = z.object({
@@ -20,6 +21,7 @@ export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const mutation = useSignInMutate();
+  const { setAccessToken } = authStore();
 
   const {
     register,
@@ -28,7 +30,11 @@ export function SignInForm() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    await mutation.mutateAsync(values satisfies SignInDto);
+    const { accessToken } = await mutation.mutateAsync(
+      values satisfies SignInDto,
+    );
+
+    setAccessToken(accessToken);
     await navigate({ to: '/' });
   };
 
