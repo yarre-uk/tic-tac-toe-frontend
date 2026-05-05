@@ -1,15 +1,21 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 interface AuthStore {
   accessToken: string | null;
   setAccessToken: (newToken: string | null) => void;
 }
 
-export const authStore = create<AuthStore>((set) => ({
-  accessToken: null,
-  setAccessToken(newToken) {
-    set({
-      accessToken: newToken,
-    });
-  },
-}));
+export const authStore = create<AuthStore, [['zustand/persist', unknown]]>(
+  persist(
+    (set) => ({
+      accessToken: null,
+      setAccessToken(newToken) {
+        return set({
+          accessToken: newToken,
+        });
+      },
+    }),
+    { name: 'authStorage', storage: createJSONStorage(() => localStorage) },
+  ),
+);

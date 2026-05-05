@@ -20,7 +20,7 @@ type FormValues = z.infer<typeof schema>;
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const mutation = useSignInMutate();
+  const { isError, isPending, mutateAsync: signIn } = useSignInMutate();
   const { setAccessToken } = authStore();
 
   const {
@@ -30,9 +30,9 @@ export function SignInForm() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    const { accessToken } = await mutation.mutateAsync(
-      values satisfies SignInDto,
-    );
+    const { accessToken } = await signIn(values satisfies SignInDto);
+
+    console.log({ accessToken });
 
     setAccessToken(accessToken);
     await navigate({ to: '/' });
@@ -90,20 +90,20 @@ export function SignInForm() {
         )}
       </div>
 
-      {mutation.isError && (
+      {isError && (
         <p className="text-sm text-red-400">Invalid nickname or password</p>
       )}
 
       <button
         type="submit"
-        disabled={isSubmitting || mutation.isPending}
+        disabled={isSubmitting || isPending}
         className={cn(
           'rounded-lg px-4 py-2.5 text-sm font-semibold transition',
           'bg-(--lagoon) text-(--sand) hover:bg-(--lagoon-deep)',
           'disabled:cursor-not-allowed disabled:opacity-50',
         )}
       >
-        {mutation.isPending ? 'Signing in…' : 'Sign in'}
+        {isPending ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   );

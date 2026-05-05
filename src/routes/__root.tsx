@@ -29,6 +29,7 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  ssr: false,
 });
 
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
