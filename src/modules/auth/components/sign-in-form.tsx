@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { api } from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { authStore } from '@/modules/auth/store';
-import type { TokenResponseDto } from '@/modules/auth/types';
+import type { SignInDto, TokenResponseDto } from '@/modules/auth/types';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),
@@ -33,7 +33,7 @@ export function SignInForm() {
     try {
       const { data } = await api.post<TokenResponseDto>(
         '/auth/sign-in',
-        values,
+        values satisfies SignInDto,
       );
       setAccessToken(data.accessToken);
       await navigate({ to: '/' });

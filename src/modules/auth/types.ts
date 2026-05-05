@@ -18,7 +18,7 @@ export interface SignInDto {
 
 export interface SignUpDto {
   nickname: string;
-  email: string;
+  email?: string;
   password: string;
 }
 

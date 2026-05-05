@@ -18,7 +18,7 @@ export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function clearObject(obj: Record<string, unknown> | object) {
+export function clearObject<T extends object>(obj: T): T {
   return Object.fromEntries(
     Object.entries(obj).filter(([_, v]) => {
       if (!isDefined(v)) {
@@ -35,7 +35,7 @@ export function clearObject(obj: Record<string, unknown> | object) {
 
       return true;
     }),
-  );
+  ) as T;
 }
 
 export function toRange(value: number, min: number, max: number): number {

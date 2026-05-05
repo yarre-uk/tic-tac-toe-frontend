@@ -6,9 +6,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { api } from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { clearObject, cn } from '@/lib/utils';
 import { authStore } from '@/modules/auth/store';
-import type { TokenResponseDto } from '@/modules/auth/types';
+import type { SignUpDto, TokenResponseDto } from '@/modules/auth/types';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),
@@ -37,12 +37,12 @@ export function SignUpForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  const onSubmit = async ({ email, ...rest }: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     try {
-      const { data } = await api.post<TokenResponseDto>('/auth/sign-up', {
-        ...rest,
-        ...(email ? { email } : {}),
-      });
+      const { data } = await api.post<TokenResponseDto>(
+        '/auth/sign-up',
+        clearObject(values) satisfies SignUpDto,
+      );
       setAccessToken(data.accessToken);
       await navigate({ to: '/' });
     } catch {
