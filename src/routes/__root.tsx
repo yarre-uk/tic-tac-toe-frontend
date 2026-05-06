@@ -46,7 +46,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="mx-auto max-w-270 overflow-x-hidden px-4 md:px-10 lg:px-20 2xl:max-w-390">
         <QueryClientProvider client={queryClient}>
           <AppShell>{children}</AppShell>
         </QueryClientProvider>
