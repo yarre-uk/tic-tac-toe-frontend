@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
 
-import { Button } from '@/components';
+import { Button, Text } from '@/components';
 import { authStore } from '@/modules';
 import { useSignOutMutation } from '@/modules/auth/hooks';
 
@@ -36,6 +36,18 @@ function Home() {
           {isPending ? 'Signing out…' : 'Sign out'}
         </Button>
       )}
+      <Text as="h1" size="4xl" weight="bold">
+        Welcome
+      </Text>
+      <Text size="base" color="secondary">
+        Body copy here
+      </Text>
+      <Text as="span" size="xs" color="muted">
+        Meta info
+      </Text>
+      <Text as="h2" size="2xl" weight="semibold" leading="tight">
+        Section title
+      </Text>
     </div>
   );
 }
