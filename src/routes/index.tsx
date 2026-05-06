@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
 
+import { Button } from '@/components';
 import { authStore } from '@/modules';
 import { useSignOutMutation } from '@/modules/auth/hooks';
 
@@ -19,8 +20,12 @@ function Home() {
       <p>isReady: {String(isReady)}</p>
       <p>isAuthorized: {String(isAuthorized())}</p>
       <p>
-        <Link to="/sign-in">Sign In</Link>
-        <Link to="/sign-up">Sign Up</Link>
+        <Button>
+          <Link to="/sign-in">Sign In</Link>
+        </Button>
+        <Button variant="secondary">
+          <Link to="/sign-up">Sign Up</Link>
+        </Button>
       </p>
       {isAuthorized() && (
         <button onClick={() => signOut()} disabled={isPending}>
