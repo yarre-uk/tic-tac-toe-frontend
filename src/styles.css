@@ -128,7 +128,5 @@ body {
 }
 
 input:-webkit-autofill {
-  background-color: inherit !important;
-  color: black !important;
-  transition: all 9999s;
+  transition: background-color 9999s ease-in-out, color 9999s ease-in-out;
 }
