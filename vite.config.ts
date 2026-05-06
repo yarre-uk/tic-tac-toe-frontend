@@ -13,6 +13,8 @@ const config = defineConfig({
     tanstackStart({
       prerender: {
         enabled: true,
+        crawlLinks: false,
+        filter: ({ path }) => path === '/',
         onSuccess: ({ page }) => {
           console.log(`Rendered ${page.path}!`);
         },
