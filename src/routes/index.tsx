@@ -20,7 +20,7 @@ function Home() {
       <p>isReady: {String(isReady)}</p>
       <p>isAuthorized: {String(isAuthorized())}</p>
       <p>
-        <Button>
+        <Button variant="default">
           <Link to="/sign-in">Sign In</Link>
         </Button>
         <Button variant="secondary">
@@ -28,9 +28,13 @@ function Home() {
         </Button>
       </p>
       {isAuthorized() && (
-        <button onClick={() => signOut()} disabled={isPending}>
+        <Button
+          variant="destructive"
+          onClick={() => signOut()}
+          disabled={isPending}
+        >
           {isPending ? 'Signing out…' : 'Sign out'}
-        </button>
+        </Button>
       )}
     </div>
   );

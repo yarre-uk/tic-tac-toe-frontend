@@ -8,18 +8,12 @@ export const Route = createFileRoute('/(auth)/sign-up')({
 
 function RouteComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl border border-(--line) bg-(--surface) p-8">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold">Create account</h1>
-          <p className="text-sm text-(--sea-ink-soft)">Join the game</p>
-        </div>
-
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex w-full max-w-sm flex-col gap-4">
         <SignUpForm />
-
-        <p className="text-center text-sm text-(--sea-ink-soft)">
+        <p className="text-ink-3 text-center text-sm">
           Already have an account?{' '}
-          <Link to="/sign-in" className="text-(--lagoon) hover:underline">
+          <Link to="/sign-in" className="text-x hover:underline">
             Sign in
           </Link>
         </p>
