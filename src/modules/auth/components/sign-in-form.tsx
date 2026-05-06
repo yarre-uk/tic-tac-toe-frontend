@@ -5,9 +5,16 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { cn } from '@/lib/utils';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+} from '@/components';
 import { useSignInMutation } from '@/modules/auth/hooks';
-import { authStore } from '@/modules/auth/store';
 import type { SignInDto } from '@/modules/auth/types';
 
 const schema = z.object({
@@ -21,7 +28,6 @@ export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { isError, isPending, mutateAsync: signIn } = useSignInMutation();
-  const { setAccessToken } = authStore();
 
   const {
     register,
@@ -30,81 +36,73 @@ export function SignInForm() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    const { accessToken } = await signIn(values satisfies SignInDto);
-
-    console.log({ accessToken });
-
-    setAccessToken(accessToken);
+    await signIn(values satisfies SignInDto);
     await navigate({ to: '/' });
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="nickname" className="text-sm font-medium">
-          Nickname
-        </label>
-        <input
-          id="nickname"
-          {...register('nickname')}
-          placeholder="Your nickname"
-          className={cn(
-            'rounded-lg border px-3 py-2 text-sm transition outline-none',
-            'border-(--line) bg-transparent placeholder:text-(--sea-ink-soft)',
-            'focus:border-(--lagoon) focus:ring-1 focus:ring-(--lagoon)',
-            errors.nickname && 'border-red-500',
-          )}
-        />
-        {errors.nickname && (
-          <p className="text-xs text-red-400">{errors.nickname.message}</p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <div className="relative">
-          <input
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            {...register('password')}
-            placeholder="••••••••"
-            className={cn(
-              'w-full rounded-lg border px-3 py-2 pr-10 text-sm transition outline-none',
-              'border-(--line) bg-transparent placeholder:text-(--sea-ink-soft)',
-              'focus:border-(--lagoon) focus:ring-1 focus:ring-(--lagoon)',
-              errors.password && 'border-red-500',
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Sign in</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="nickname">Nickname</Label>
+            <Input
+              id="nickname"
+              {...register('nickname')}
+              placeholder="Your nickname"
+              aria-invalid={!!errors.nickname}
+            />
+            {errors.nickname && (
+              <p className="text-destructive text-xs">
+                {errors.nickname.message}
+              </p>
             )}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-(--sea-ink-soft) hover:text-(--sea-ink)"
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                {...register('password')}
+                placeholder="••••••••"
+                className="pr-10"
+                aria-invalid={!!errors.password}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-destructive text-xs">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {isError && (
+            <p className="text-destructive text-sm">
+              Invalid nickname or password
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || isPending}
+            className="w-full"
           >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        </div>
-        {errors.password && (
-          <p className="text-xs text-red-400">{errors.password.message}</p>
-        )}
-      </div>
-
-      {isError && (
-        <p className="text-sm text-red-400">Invalid nickname or password</p>
-      )}
-
-      <button
-        type="submit"
-        disabled={isSubmitting || isPending}
-        className={cn(
-          'rounded-lg px-4 py-2.5 text-sm font-semibold transition',
-          'bg-(--lagoon) text-(--sand) hover:bg-(--lagoon-deep)',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-        )}
-      >
-        {isPending ? 'Signing in…' : 'Sign in'}
-      </button>
-    </form>
+            {isPending ? 'Signing in…' : 'Sign in'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

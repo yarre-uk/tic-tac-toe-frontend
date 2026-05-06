@@ -32,6 +32,9 @@
   --destructive: oklch(60% 0.22 25);
   --destructive-foreground: oklch(96% 0.01 90);
 
+  --card: oklch(17% 0.01 220);
+  --card-foreground: oklch(92% 0.01 220);
+
   --border: oklch(28% 0.02 220);
   --input: oklch(22% 0.02 220);
   --ring: oklch(55% 0.15 210);
@@ -63,6 +66,9 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
