@@ -88,3 +88,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+input:-webkit-autofill {
+  background-color: inherit !important;
+  color: black !important;
+  transition: all 9999s;
+}
