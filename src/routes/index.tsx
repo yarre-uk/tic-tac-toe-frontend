@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
 
-import { Button } from '@/components';
+import { Button, Text } from '@/components';
 import { authStore } from '@/modules';
 import { useSignOutMutation } from '@/modules/auth/hooks';
 
@@ -20,7 +20,7 @@ function Home() {
       <p>isReady: {String(isReady)}</p>
       <p>isAuthorized: {String(isAuthorized())}</p>
       <p>
-        <Button>
+        <Button variant="default">
           <Link to="/sign-in">Sign In</Link>
         </Button>
         <Button variant="secondary">
@@ -28,10 +28,26 @@ function Home() {
         </Button>
       </p>
       {isAuthorized() && (
-        <button onClick={() => signOut()} disabled={isPending}>
+        <Button
+          variant="destructive"
+          onClick={() => signOut()}
+          disabled={isPending}
+        >
           {isPending ? 'Signing out…' : 'Sign out'}
-        </button>
+        </Button>
       )}
+      <Text as="h1" size="4xl" weight="bold">
+        Welcome
+      </Text>
+      <Text size="base" color="secondary">
+        Body copy here
+      </Text>
+      <Text as="span" size="xs" color="muted">
+        Meta info
+      </Text>
+      <Text as="h2" size="2xl" weight="semibold" leading="tight">
+        Section title
+      </Text>
     </div>
   );
 }

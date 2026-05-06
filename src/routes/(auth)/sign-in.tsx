@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
 
+import { Text } from '@/components';
 import { SignInForm } from '@/modules/auth';
 
 export const Route = createFileRoute('/(auth)/sign-in')({
@@ -8,21 +9,15 @@ export const Route = createFileRoute('/(auth)/sign-in')({
 
 function RouteComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl border border-(--line) bg-(--surface) p-8">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold">Sign in</h1>
-          <p className="text-sm text-(--sea-ink-soft)">Welcome back</p>
-        </div>
-
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex w-full max-w-sm flex-col gap-4">
         <SignInForm />
-
-        <p className="text-center text-sm text-(--sea-ink-soft)">
+        <Text className="text-center" color="muted">
           No account?{' '}
-          <Link to="/sign-up" className="text-(--lagoon) hover:underline">
+          <Link to="/sign-up" className="text-x hover:underline">
             Create one
           </Link>
-        </p>
+        </Text>
       </div>
     </div>
   );
