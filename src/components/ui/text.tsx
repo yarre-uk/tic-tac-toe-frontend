@@ -13,8 +13,9 @@ const textVariants = cva('', {
       lg: 'text-base sm:text-lg',
       xl: 'text-lg sm:text-xl',
       '2xl': 'text-xl sm:text-2xl',
-      '3xl': 'text-2xl sm:text-3xl md:text-4xl',
-      '4xl': 'text-3xl sm:text-4xl md:text-5xl',
+      '3xl': 'text-2xl md:text-3xl',
+      '4xl': 'text-2xl sm:text-3xl md:text-4xl',
+      '5xl': 'text-3xl sm:text-4xl md:text-5xl',
       title: 'text-[80px] sm:text-[100px] md:text-[120px]',
     },
     weight: {
