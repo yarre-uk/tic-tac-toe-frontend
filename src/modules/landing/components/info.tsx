@@ -11,7 +11,7 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
       >
         — a side project
       </Text>
-      <Text color="secondary">
+      <Text weight="light" color="secondary">
         The classic 3×3 game, redrawn for the dark. Play locally, spin up a
         private room to challenge a friend online, and chat while you play.
       </Text>
@@ -29,13 +29,13 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
         <Text size="sm" className="head" weight="light">
           mode
         </Text>
-        <Text size="2xl" className="bottom">
+        <Text size="2xl" weight="bold" className="bottom">
           private
         </Text>
-        <Text size="2xl" className="bottom">
+        <Text size="2xl" weight="bold" className="bottom">
           built-in
         </Text>
-        <Text size="2xl" className="bottom">
+        <Text size="2xl" weight="bold" className="bottom">
           1v1
         </Text>
       </div>

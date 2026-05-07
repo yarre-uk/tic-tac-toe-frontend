@@ -8,7 +8,7 @@ export function LandingTitle({ className }: Readonly<{ className?: string }>) {
         size="title"
         weight="bold"
         className={cn(
-          'w-min leading-[0.7] uppercase select-none [&>.dot]:ml-8 md:[&>.dot]:ml-12',
+          'w-min leading-[0.8] tracking-tighter uppercase select-none [&>.dot]:ml-8 md:[&>.dot]:ml-12',
           className,
         )}
       >

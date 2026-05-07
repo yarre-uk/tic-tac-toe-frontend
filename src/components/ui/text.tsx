@@ -15,7 +15,7 @@ const textVariants = cva('', {
       '2xl': 'text-xl sm:text-2xl',
       '3xl': 'text-2xl sm:text-3xl md:text-4xl',
       '4xl': 'text-3xl sm:text-4xl md:text-5xl',
-      title: 'text-[100px] sm:text-[120px] md:text-[140px]',
+      title: 'text-[80px] sm:text-[100px] md:text-[120px]',
     },
     weight: {
       light: 'font-light',
