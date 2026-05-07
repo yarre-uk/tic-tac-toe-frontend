@@ -1,12 +1,16 @@
 import { Text } from '@/components';
+import { cn } from '@/lib/utils';
 
-export function LandingTitle() {
+export function LandingTitle({ className }: Readonly<{ className?: string }>) {
   return (
     <div>
       <Text
         size="title"
         weight="bold"
-        className="w-min leading-[0.7] uppercase select-none [&>.dot]:ml-8 md:[&>.dot]:ml-12"
+        className={cn(
+          'w-min leading-[0.7] uppercase select-none [&>.dot]:ml-8 md:[&>.dot]:ml-12',
+          className,
+        )}
       >
         <span className="text-o">tic</span>
         <span className="dot text-muted-foreground">·</span>

@@ -25,6 +25,7 @@ const textVariants = cva('', {
       bold: 'font-bold',
     },
     color: {
+      inherit: 'text-inherit',
       primary: 'text-ink',
       secondary: 'text-ink-2',
       muted: 'text-ink-3',
@@ -59,7 +60,7 @@ function Text<T extends ElementType = 'p'>({
   as,
   size,
   weight,
-  color,
+  color = 'inherit',
   leading,
   className,
   ...props

@@ -60,7 +60,7 @@
 }
 
 @theme inline {
-  --font-sono: "Sono", monospace;
+  --font-sono: "Sono", ui-monospace, monospace;
 
   /* Surfaces */
   --color-bg-page:  var(--bg-page);
