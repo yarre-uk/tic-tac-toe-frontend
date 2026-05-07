@@ -9,9 +9,9 @@ function Home() {
     <div>
       <LandingHeader />
 
-      <div className="flex flex-col justify-between gap-4 lg:flex-row">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
         <LandingTitle className="" />
-        <LandingInfo className="w-1/2 2xl:w-1/3" />
+        <LandingInfo className="max-lg:ml-auto lg:w-1/2 2xl:w-1/3" />
       </div>
     </div>
   );
