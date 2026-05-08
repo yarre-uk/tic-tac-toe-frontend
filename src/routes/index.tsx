@@ -19,7 +19,7 @@ function Home() {
         <LandingInfo className="max-lg:ml-auto lg:w-1/2 2xl:w-1/3" />
       </div>
 
-      <FeaturesLanding className="mt-40" />
+      <FeaturesLanding className="mt-10 md:mt-20 lg:mt-40" />
     </div>
   );
 }

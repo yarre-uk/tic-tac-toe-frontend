@@ -5,9 +5,10 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
   return (
     <div className={cn('text-muted-foreground space-y-4', className)}>
       <Text
-        size="xs"
-        className="space tracking-widest uppercase"
+        size="xxs"
+        className="space uppercase"
         weight="light"
+        tracking="wide"
       >
         — a side project
       </Text>
@@ -20,13 +21,13 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
       <hr />
 
       <div className="[&>.bottom]:text-ink grid grid-cols-3 grid-rows-[auto_auto] [&>.bottom]:leading-none [&>.head]:uppercase">
-        <Text size="sm" className="head" weight="light">
+        <Text size="xs" className="head" weight="light">
           rooms
         </Text>
-        <Text size="sm" className="head" weight="light">
+        <Text size="xs" className="head" weight="light">
           chat
         </Text>
-        <Text size="sm" className="head" weight="light">
+        <Text size="xs" className="head" weight="light">
           mode
         </Text>
         <Text size="2xl" weight="bold" className="bottom">

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 const textVariants = cva('', {
   variants: {
     size: {
+      xxs: 'text-[0.65rem]',
       xs: 'text-xs',
       sm: 'text-xs sm:text-sm',
       base: 'text-sm sm:text-base',
@@ -40,6 +41,10 @@ const textVariants = cva('', {
       normal: 'leading-normal',
       relaxed: 'leading-relaxed',
     },
+    tracking: {
+      normal: 'tracking-normal',
+      wide: 'tracking-[0.3rem]',
+    },
   },
   defaultVariants: {
     size: 'base',
@@ -63,6 +68,7 @@ function Text<T extends ElementType = 'p'>({
   weight,
   color = 'inherit',
   leading,
+  tracking,
   className,
   ...props
 }: TextProps<T>) {
@@ -70,7 +76,10 @@ function Text<T extends ElementType = 'p'>({
 
   return (
     <Tag
-      className={cn(textVariants({ size, weight, color, leading }), className)}
+      className={cn(
+        textVariants({ size, weight, color, leading, tracking }),
+        className,
+      )}
       {...props}
     />
   );
