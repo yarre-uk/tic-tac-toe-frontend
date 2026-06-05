@@ -11,9 +11,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  FormError,
   Input,
   Label,
+  Text,
 } from '@/components';
+import { isDefined } from '@/lib/utils';
 import { useSignUpMutation } from '@/modules/auth/hooks';
 import type { SignUpDto } from '@/modules/auth/types';
 
@@ -61,29 +64,28 @@ export function SignUpForm() {
               id="nickname"
               {...register('nickname')}
               placeholder="Your nickname"
-              aria-invalid={!!errors.nickname}
+              aria-invalid={isDefined(errors.nickname)}
             />
-            {errors.nickname && (
-              <p className="text-destructive text-xs">
-                {errors.nickname.message}
-              </p>
-            )}
+
+            <FormError size="xs" message={errors.nickname?.message} />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">
-              Email <span className="text-muted-foreground">(optional)</span>
+              Email{' '}
+              <Text as="span" size="xs" color="muted">
+                (optional)
+              </Text>
             </Label>
             <Input
               id="email"
               type="email"
               {...register('email')}
               placeholder="you@example.com"
-              aria-invalid={!!errors.email}
+              aria-invalid={isDefined(errors.email)}
             />
-            {errors.email && (
-              <p className="text-destructive text-xs">{errors.email.message}</p>
-            )}
+
+            <FormError size="xs" message={errors.email?.message} />
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -95,28 +97,27 @@ export function SignUpForm() {
                 {...register('password')}
                 placeholder="••••••••"
                 className="pr-10"
-                aria-invalid={!!errors.password}
+                aria-invalid={isDefined(errors.password)}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+                className="text-ink-3 hover:text-ink absolute top-1/2 right-3 -translate-y-1/2"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-destructive text-xs">
-                {errors.password.message}
-              </p>
-            )}
+
+            <FormError size="xs" message={errors.password?.message} />
           </div>
 
-          {isError && (
-            <p className="text-destructive text-sm">
-              Registration failed. Nickname may already be taken.
-            </p>
-          )}
+          <FormError
+            message={
+              isError
+                ? 'Registration failed. Nickname may already be taken.'
+                : undefined
+            }
+          />
 
           <Button
             type="submit"
