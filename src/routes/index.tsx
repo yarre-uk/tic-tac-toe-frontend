@@ -5,6 +5,7 @@ import {
   LandingHeader,
   LandingInfo,
   LandingTitle,
+  TTTBoard,
 } from '@/modules';
 
 export const Route = createFileRoute('/')({ component: Home });
@@ -13,13 +14,13 @@ function Home() {
   return (
     <div className="flex flex-col gap-12">
       <LandingHeader />
-
       <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
         <LandingTitle className="" />
         <LandingInfo className="max-lg:ml-auto lg:w-1/2 2xl:w-1/3" />
       </div>
-
       <FeaturesLanding className="mt-10 md:mt-20 lg:mt-40" />
+
+      <TTTBoard />
     </div>
   );
 }
