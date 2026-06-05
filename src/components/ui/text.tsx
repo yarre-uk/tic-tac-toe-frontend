@@ -7,22 +7,27 @@ import { cn } from '@/lib/utils';
 const textVariants = cva('', {
   variants: {
     size: {
+      xxs: 'text-[0.65rem]',
       xs: 'text-xs',
       sm: 'text-xs sm:text-sm',
       base: 'text-sm sm:text-base',
       lg: 'text-base sm:text-lg',
       xl: 'text-lg sm:text-xl',
       '2xl': 'text-xl sm:text-2xl',
-      '3xl': 'text-2xl sm:text-3xl md:text-4xl',
-      '4xl': 'text-3xl sm:text-4xl md:text-5xl',
+      '3xl': 'text-2xl md:text-3xl',
+      '4xl': 'text-2xl sm:text-3xl md:text-4xl',
+      '5xl': 'text-3xl sm:text-4xl md:text-5xl',
+      title: 'text-[80px] sm:text-[100px] md:text-[120px]',
     },
     weight: {
+      light: 'font-light',
       normal: 'font-normal',
       medium: 'font-medium',
       semibold: 'font-semibold',
       bold: 'font-bold',
     },
     color: {
+      inherit: 'text-inherit',
       primary: 'text-ink',
       secondary: 'text-ink-2',
       muted: 'text-ink-3',
@@ -35,6 +40,10 @@ const textVariants = cva('', {
       snug: 'leading-snug',
       normal: 'leading-normal',
       relaxed: 'leading-relaxed',
+    },
+    tracking: {
+      normal: 'tracking-normal',
+      wide: 'tracking-[0.3rem]',
     },
   },
   defaultVariants: {
@@ -57,8 +66,9 @@ function Text<T extends ElementType = 'p'>({
   as,
   size,
   weight,
-  color,
+  color = 'inherit',
   leading,
+  tracking,
   className,
   ...props
 }: TextProps<T>) {
@@ -66,7 +76,10 @@ function Text<T extends ElementType = 'p'>({
 
   return (
     <Tag
-      className={cn(textVariants({ size, weight, color, leading }), className)}
+      className={cn(
+        textVariants({ size, weight, color, leading, tracking }),
+        className,
+      )}
       {...props}
     />
   );

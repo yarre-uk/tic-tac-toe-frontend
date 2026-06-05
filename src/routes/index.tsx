@@ -1,53 +1,26 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
-import { Button, Text } from '@/components';
-import { authStore } from '@/modules';
-import { useSignOutMutation } from '@/modules/auth/hooks';
+import {
+  FeaturesLanding,
+  LandingHeader,
+  LandingInfo,
+  LandingTitle,
+  TTTBoard,
+} from '@/modules';
 
 export const Route = createFileRoute('/')({ component: Home });
 
 function Home() {
-  'use no memo';
-
-  const { accessToken, isAuthorized, isReady } = authStore();
-  const { mutate: signOut, isPending } = useSignOutMutation();
-
   return (
-    <div className="p-8 text-center">
-      <h1 className="text-4xl font-bold">Welcome to Tic Tac Toe</h1>
-      <p>Simple and yet interesting game</p>
-      <p>token: {accessToken?.slice(0, 10)}...</p>
-      <p>isReady: {String(isReady)}</p>
-      <p>isAuthorized: {String(isAuthorized())}</p>
-      <p>
-        <Button variant="default">
-          <Link to="/sign-in">Sign In</Link>
-        </Button>
-        <Button variant="secondary">
-          <Link to="/sign-up">Sign Up</Link>
-        </Button>
-      </p>
-      {isAuthorized() && (
-        <Button
-          variant="destructive"
-          onClick={() => signOut()}
-          disabled={isPending}
-        >
-          {isPending ? 'Signing out…' : 'Sign out'}
-        </Button>
-      )}
-      <Text as="h1" size="4xl" weight="bold">
-        Welcome
-      </Text>
-      <Text size="base" color="secondary">
-        Body copy here
-      </Text>
-      <Text as="span" size="xs" color="muted">
-        Meta info
-      </Text>
-      <Text as="h2" size="2xl" weight="semibold" leading="tight">
-        Section title
-      </Text>
+    <div className="flex flex-col gap-12">
+      <LandingHeader />
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+        <LandingTitle className="" />
+        <LandingInfo className="max-lg:ml-auto lg:w-1/2 2xl:w-1/3" />
+      </div>
+      <FeaturesLanding className="mt-10 md:mt-20 lg:mt-40" />
+
+      <TTTBoard />
     </div>
   );
 }

@@ -7,9 +7,9 @@
 
 :root {
   /* Surface / background */
-  --bg-page:  #1a1c20;
+  --bg-page:  #0c0d13;
   --bg-panel: #2c2f34;
-  --bg-cell:  #1f2125;
+  --bg-cell:  #0f1218;
 
   /* Lines / borders */
   --line:      oklch(0.4 0.015 260 / 0.5);
@@ -21,13 +21,13 @@
   --ink-3: #7a7c82;
 
   /* X accent (blue) */
-  --x:      #6f9bff;
+  --x:      #59aaf8;
   --x-soft: rgba(111, 155, 255, 0.14);
   --x-line: rgba(111, 155, 255, 0.35);
   --x-glow: rgba(111, 155, 255, 0.50);
 
   /* O accent (coral) */
-  --o:      #ff7660;
+  --o:      #f3625d;
   --o-soft: rgba(255, 118, 96, 0.14);
   --o-line: rgba(255, 118, 96, 0.35);
   --o-glow: rgba(255, 118, 96, 0.50);
@@ -60,7 +60,7 @@
 }
 
 @theme inline {
-  --font-sono: "Sono", monospace;
+  --font-sono: "Sono", ui-monospace, monospace;
 
   /* Surfaces */
   --color-bg-page:  var(--bg-page);
@@ -115,7 +115,6 @@ body,
 }
 
 body {
-  margin: 0;
   background-color: var(--bg-page);
   color: var(--ink);
   font-family: var(--font-sono);
