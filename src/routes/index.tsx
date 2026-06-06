@@ -2,10 +2,10 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import {
   FeaturesLanding,
+  LandingGame,
   LandingHeader,
   LandingInfo,
   LandingTitle,
-  TTTBoard,
 } from '@/modules';
 
 export const Route = createFileRoute('/')({ component: Home });
@@ -18,9 +18,10 @@ function Home() {
         <LandingTitle className="" />
         <LandingInfo className="max-lg:ml-auto lg:w-1/2 2xl:w-1/3" />
       </div>
+
       <FeaturesLanding className="mt-10 md:mt-20 lg:mt-40" />
 
-      <TTTBoard />
+      <LandingGame />
     </div>
   );
 }

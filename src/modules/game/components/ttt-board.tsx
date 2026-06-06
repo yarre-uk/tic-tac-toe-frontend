@@ -1,4 +1,4 @@
-import { useGameStore } from '../store';
+import type { GameActions } from '../store';
 
 import { cn } from '@/lib/utils';
 
@@ -7,15 +7,26 @@ function getStatusText(
   winner: string | null,
   currentPlayer: string,
 ): string {
-  if (status === 'won') return `Player ${winner} wins!`;
-  if (status === 'draw') return "It's a draw!";
+  if (status === 'won') {
+    return `Player ${winner} wins!`;
+  }
+
+  if (status === 'draw') {
+    return "It's a draw!";
+  }
+
   return `Player ${currentPlayer}'s turn`;
 }
 
-export function TTTBoard() {
-  const { board, currentPlayer, status, winner, winLine, makeMove, reset } =
-    useGameStore();
-
+export function TTTBoard({
+  board,
+  currentPlayer,
+  status,
+  winner,
+  winLine,
+  makeMove,
+  reset,
+}: Readonly<GameActions>) {
   const statusText = getStatusText(status, winner, currentPlayer);
 
   return (
