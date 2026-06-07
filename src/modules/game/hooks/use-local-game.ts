@@ -1,5 +1,5 @@
 import { useBoardStore } from '../store';
-import type { Cell, GameActions, GameStatus, Player } from '../store';
+import type { Cell, GameActions, GameStatus, Player } from '../types';
 
 import { isDefined } from '@/lib/utils';
 

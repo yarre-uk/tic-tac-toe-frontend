@@ -1,13 +1,11 @@
 import { TTTBoard, useLocalGameStrategy } from '@/modules/game';
 
-export function LandingGame() {
+export function LandingGame({ className }: Readonly<{ className: string }>) {
   const localGame = useLocalGameStrategy();
 
-  console.log(2);
-
   return (
-    <div>
-      <TTTBoard {...localGame} />
-    </div>
+    <>
+      <TTTBoard {...localGame} className={className} />
+    </>
   );
 }

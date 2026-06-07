@@ -1,18 +1,6 @@
 import { create } from 'zustand';
 
-export type Player = 'X' | 'O';
-export type Cell = Player | null;
-export type GameStatus = 'playing' | 'won' | 'draw';
-
-export interface GameActions {
-  board: Array<Cell>;
-  currentPlayer: Player;
-  status: GameStatus;
-  winner: Player | null;
-  winLine: [number, number, number] | null;
-  makeMove: (index: number) => void;
-  reset: () => void;
-}
+import type { Cell, Player } from './types';
 
 interface BoardState {
   board: Array<Cell>;

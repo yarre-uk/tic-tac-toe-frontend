@@ -21,7 +21,7 @@ function Home() {
 
       <FeaturesLanding className="mt-10 md:mt-20 lg:mt-40" />
 
-      <LandingGame />
+      <LandingGame className="my-10 lg:my-20" />
     </div>
   );
 }
