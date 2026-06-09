@@ -8,9 +8,9 @@ import {
   LandingTitle,
 } from '@/modules';
 
-export const Route = createFileRoute('/')({ component: Home });
+export const Route = createFileRoute('/')({ component: Landing });
 
-function Home() {
+function Landing() {
   return (
     <div className="flex flex-col gap-12">
       <LandingHeader />

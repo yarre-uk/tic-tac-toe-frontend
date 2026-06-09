@@ -5,6 +5,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import appCss from '../styles.css?url';
 
+import { useSocketConnection } from '@/hooks/use-socket-connection';
 import { useAuthRefresh } from '@/modules/auth';
 
 const queryClient = new QueryClient();
@@ -36,6 +37,9 @@ export const Route = createRootRoute({
 
 function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
   useAuthRefresh();
+  // Manages the WebSocket connection lifecycle — connects when a token is available,
+  // disconnects on logout. Must run after useAuthRefresh so the token is fresh.
+  useSocketConnection();
 
   return <>{children}</>;
 }
