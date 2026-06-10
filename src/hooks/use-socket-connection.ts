@@ -1,16 +1,17 @@
 import { useEffect } from 'react';
 
 import { connectSocket, disconnectSocket } from '@/lib/socket';
+import { isDefined } from '@/lib/utils';
 import { authStore } from '@/modules/auth/store';
 
 /**
  * Manages the WebSocket connection lifecycle for the authenticated part of the app.
  *
  * Call this hook exactly once, in the root authenticated layout component.
- * It handles three scenarios:
- *   1. Page refresh with a persisted token — wait for isReady, then connect.
- *   2. User logs in mid-session — connect when the token appears and isReady is true.
- *   3. User logs out — disconnect when the token is cleared from the store.
+ * It handles two scenarios:
+ *   1. Store becomes authorized (isReady + token) — connect. Covers both page refresh
+ *      and fresh login without needing separate conditions for each.
+ *   2. Token is cleared (logout) — disconnect.
  *
  * Why gate on isReady?
  *   On mount, Zustand rehydrates accessToken from localStorage immediately, but the
@@ -42,17 +43,15 @@ export function useSocketConnection(): void {
     const unsubscribe = authStore.subscribe((state, prev) => {
       const tokenRemoved = !state.accessToken && prev.accessToken;
 
-      // Connect when the store becomes "authorized":
-      //   - isReady just flipped to true and there is a token (page refresh case:
-      //     useAuthRefresh finished validating the persisted token), OR
-      //   - a token was just set while isReady is already true (fresh login case).
-      // Both conditions require isReady so we never connect with an unvalidated token.
-      const justBecameReady =
-        state.isReady && !prev.isReady && !!state.accessToken;
-      const tokenAdded =
-        !!state.accessToken && !prev.accessToken && state.isReady;
+      // Connect when the store transitions into "authorized" — has a validated token.
+      // Covers both the page-refresh case (isReady flips true) and the fresh-login
+      // case (token appears while isReady is already true) without needing separate
+      // conditions for each.
+      const isAuthorized = state.isAuthorized();
+      const wasAuthorized = isDefined(prev.accessToken) && prev.isReady;
+      const justBecameAuthorized = isAuthorized && !wasAuthorized;
 
-      if (justBecameReady || tokenAdded) {
+      if (justBecameAuthorized) {
         connectSocket(state.accessToken!);
       } else if (tokenRemoved) {
         // User logged out — cleanly close the socket so the server removes
