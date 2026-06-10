@@ -10,6 +10,8 @@ import type {
 
 import { SocketEvent } from '@/constants/socket-events';
 import { getSocket } from '@/lib/socket';
+import { isDefined } from '@/lib/utils';
+import { useProfileStore } from '@/modules/profile/store';
 
 /**
  * Provides room actions and subscribes to server-pushed room updates.
@@ -36,6 +38,7 @@ import { getSocket } from '@/lib/socket';
  */
 export function useRoom() {
   const { room, setRoom } = useRoomStore();
+  const setRoomId = useProfileStore((s) => s.setRoomId);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export function useRoom() {
 
     // Socket may be null if useRoom is rendered before useSocketConnection
     // has run (e.g. on an unauthenticated route). Safe to bail early.
-    if (!socket) {
+    if (!isDefined(socket)) {
       return;
     }
 
@@ -80,7 +83,9 @@ export function useRoom() {
    */
   function create(payload: CreateRoomPayload = {}) {
     const socket = getSocket();
-    if (!socket) return;
+    if (!isDefined(socket)) {
+      return;
+    }
 
     clearError();
 
@@ -88,6 +93,7 @@ export function useRoom() {
     // itself. This is the correct pattern for one-shot request/response over WS.
     socket.once(SocketEvent.Rooms.CREATED, (created: Room) => {
       setRoom(created);
+      setRoomId(created.id);
     });
 
     socket.emit(SocketEvent.Rooms.CREATE, payload);
@@ -99,7 +105,9 @@ export function useRoom() {
    */
   function join(roomId: string) {
     const socket = getSocket();
-    if (!socket) return;
+    if (!isDefined(socket)) {
+      return;
+    }
 
     const payload: JoinRoomPayload = { roomId };
 
@@ -107,9 +115,32 @@ export function useRoom() {
 
     socket.once(SocketEvent.Rooms.JOINED, (joined: Room) => {
       setRoom(joined);
+      setRoomId(joined.id);
     });
 
     socket.emit(SocketEvent.Rooms.JOIN, payload);
+  }
+
+  /**
+   * Rejoins an existing room after a page reload.
+   * Unlike join(), this does not modify the DB — it only re-registers the new
+   * socket into the Socket.IO room. Takes roomId explicitly because the room
+   * store is empty after a reload.
+   */
+  function rejoin(roomId: string) {
+    const socket = getSocket();
+    if (!isDefined(socket)) {
+      return;
+    }
+
+    clearError();
+
+    socket.once(SocketEvent.Rooms.REJOINED, (joined: Room) => {
+      setRoom(joined);
+      setRoomId(joined.id);
+    });
+
+    socket.emit(SocketEvent.Rooms.REJOIN, { roomId });
   }
 
   /**
@@ -118,16 +149,19 @@ export function useRoom() {
    */
   function leave() {
     const socket = getSocket();
-    if (!socket) return;
+    if (!isDefined(socket)) {
+      return;
+    }
 
     clearError();
 
     socket.once(SocketEvent.Rooms.LEFT, () => {
       setRoom(null);
+      setRoomId(null);
     });
 
     socket.emit(SocketEvent.Rooms.LEAVE);
   }
 
-  return { room, create, join, leave, error, clearError };
+  return { room, create, join, rejoin, leave, error, clearError };
 }
