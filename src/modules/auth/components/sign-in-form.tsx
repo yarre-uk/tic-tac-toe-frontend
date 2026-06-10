@@ -16,8 +16,8 @@ import {
   Label,
 } from '@/components';
 import { isDefined } from '@/lib/utils';
-import { useSignInMutation } from '@/modules/auth/hooks';
-import type { SignInDto } from '@/modules/auth/types';
+import { useSignInMutation } from '@/modules';
+import type { SignInDto } from '@/modules';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),

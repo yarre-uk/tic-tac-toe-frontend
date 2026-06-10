@@ -2,19 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { api } from '@/lib/axios';
-import { isDefined } from '@/lib/utils';
-import { authStore } from '@/modules/auth/store';
-import type { TokenResponseDto } from '@/modules/auth/types';
+import { useAuthStore } from '@/modules';
+import type { TokenResponseDto } from '@/modules';
 import type { ApiResult } from '@/types';
 
 export const useAuthRefresh = () => {
   'use no memo';
 
-  const setAccessToken = authStore((s) => s.setAccessToken);
-  const { accessToken, setReady } = authStore();
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
+  const { accessToken, setReady } = useAuthStore();
 
   const query = useQuery({
-    enabled: isDefined(accessToken),
     queryKey: ['auth', 'refresh'],
     queryFn: async () => {
       const r = await api.post<ApiResult<TokenResponseDto>>('/auth/refresh');
@@ -26,11 +24,6 @@ export const useAuthRefresh = () => {
   });
 
   useEffect(() => {
-    if (!isDefined(accessToken)) {
-      setReady(true);
-      return;
-    }
-
     if (query.isSuccess) {
       setAccessToken(query.data.accessToken);
       setReady(true);

@@ -1,12 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { apiAuth } from '@/lib/axios';
-import { authStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules';
 
 export const useSignOutMutation = () => {
   'use no memo';
 
-  const { setAccessToken, setReady } = authStore();
+  const { setAccessToken, setReady } = useAuthStore();
 
   return useMutation({
     mutationFn: async () => {

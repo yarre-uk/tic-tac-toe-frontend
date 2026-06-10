@@ -17,8 +17,8 @@ import {
   Text,
 } from '@/components';
 import { isDefined } from '@/lib/utils';
-import { useSignUpMutation } from '@/modules/auth/hooks';
-import type { SignUpDto } from '@/modules/auth/types';
+import { useSignUpMutation } from '@/modules';
+import type { SignUpDto } from '@/modules';
 
 const schema = z.object({
   nickname: z.string().min(4, 'Minimum 4 characters'),

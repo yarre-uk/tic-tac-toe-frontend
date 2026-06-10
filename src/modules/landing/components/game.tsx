@@ -1,4 +1,4 @@
-import { TTTBoard, useLocalGameStrategy } from '@/modules/game';
+import { TTTBoard, useLocalGameStrategy } from '@/modules';
 
 export function LandingGame({ className }: Readonly<{ className: string }>) {
   const localGame = useLocalGameStrategy();

@@ -25,3 +25,12 @@ export interface SignUpDto {
 export interface TokenResponseDto {
   accessToken: string;
 }
+
+// Mirrors UserPayload from the backend — the decoded JWT body.
+export type Role = 'Admin' | 'Moderator' | 'User';
+
+export interface UserPayload {
+  sub: string; // user ID
+  jti: string; // unique token ID (used for blacklisting)
+  role: Role;
+}

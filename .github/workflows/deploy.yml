@@ -40,6 +40,7 @@ jobs:
     needs: quick-checks
     env: 
       VITE_API_URL: ${{ vars.VITE_API_URL }}
+      VITE_WS_URL: ${{ vars.VITE_WS_URL }}
     steps:
       - uses: actions/checkout@v4
 
