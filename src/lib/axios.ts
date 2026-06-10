@@ -4,7 +4,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { Envs } from './env';
 import { isDefined } from './utils';
 
-import { authStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules/auth/store';
 
 const BASE_URL = Envs.VITE_API_URL;
 
@@ -33,7 +33,7 @@ function processQueue(error: unknown, token: string | null) {
 }
 
 apiAuth.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { accessToken } = authStore.getState();
+  const { accessToken } = useAuthStore.getState();
 
   if (isDefined(accessToken)) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -71,7 +71,7 @@ apiAuth.interceptors.response.use(
     try {
       const { data } = await api.post<{ accessToken: string }>('/auth/refresh');
 
-      authStore.getState().setAccessToken(data.accessToken);
+      useAuthStore.getState().setAccessToken(data.accessToken);
       processQueue(null, data.accessToken);
 
       config.headers.Authorization = `Bearer ${data.accessToken}`;
@@ -80,7 +80,7 @@ apiAuth.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
 
-      authStore.getState().setAccessToken(null);
+      useAuthStore.getState().setAccessToken(null);
 
       return Promise.reject(refreshError);
     } finally {

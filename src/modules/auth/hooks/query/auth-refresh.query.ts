@@ -2,15 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { api } from '@/lib/axios';
-import { authStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules/auth/store';
 import type { TokenResponseDto } from '@/modules/auth/types';
 import type { ApiResult } from '@/types';
 
 export const useAuthRefresh = () => {
   'use no memo';
 
-  const setAccessToken = authStore((s) => s.setAccessToken);
-  const { accessToken, setReady } = authStore();
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
+  const { accessToken, setReady } = useAuthStore();
 
   const query = useQuery({
     queryKey: ['auth', 'refresh'],

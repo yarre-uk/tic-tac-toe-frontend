@@ -3,10 +3,6 @@ import type { Socket } from 'socket.io-client';
 
 import { Envs } from './env';
 
-// Module-level variable — lives for the entire browser session, outside React.
-// Keeping it here (not in a Zustand store) is intentional: sockets are not
-// serializable data, and storing a live connection object as React/Zustand state
-// would cause re-renders on every event. We just need one shared instance.
 let socket: Socket | null = null;
 
 /**
@@ -30,7 +26,9 @@ let socket: Socket | null = null;
 export function connectSocket(token: string): Socket {
   // Guard against creating a second connection when the token refreshes.
   // socket.connected is true only after the transport handshake succeeds.
-  if (socket?.connected) return socket;
+  if (socket?.connected) {
+    return socket;
+  }
 
   // If a previous socket exists but is disconnected (e.g. after a network drop),
   // clean it up before creating a new one to avoid event listener leaks.

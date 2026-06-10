@@ -2,14 +2,14 @@ import { useMutation } from '@tanstack/react-query';
 
 import { api } from '@/lib/axios';
 import { clearObject } from '@/lib/utils';
-import { authStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules/auth/store';
 import type { SignUpDto, TokenResponseDto } from '@/modules/auth/types';
 import type { ApiResult } from '@/types';
 
 export const useSignUpMutation = () => {
   'use no memo';
 
-  const { setAccessToken, setReady } = authStore();
+  const { setAccessToken, setReady } = useAuthStore();
 
   return useMutation({
     mutationFn: async (dto: SignUpDto) => {

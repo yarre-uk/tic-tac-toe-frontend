@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { connectSocket, disconnectSocket } from '@/lib/socket';
 import { isDefined } from '@/lib/utils';
-import { authStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules/auth/store';
 
 /**
  * Manages the WebSocket connection lifecycle for the authenticated part of the app.
@@ -27,11 +27,13 @@ import { authStore } from '@/modules/auth/store';
  *   side-effect (connect/disconnect), not about reading the value into the component tree.
  */
 export function useSocketConnection(): void {
+  'use no memo';
+
   useEffect(() => {
     // Scenario 1: already authorized when this component first mounts.
     // This only happens if the user refreshed the page AND useAuthRefresh has
     // already resolved by the time this effect runs — uncommon but possible.
-    const { accessToken, isReady } = authStore.getState();
+    const { accessToken, isReady } = useAuthStore.getState();
     if (accessToken && isReady) {
       connectSocket(accessToken);
     }
@@ -40,7 +42,7 @@ export function useSocketConnection(): void {
     // every time the store changes. This is the Zustand equivalent of watching
     // a value — but outside the React render cycle, which is exactly what we want
     // for managing a side-effectful resource like a socket.
-    const unsubscribe = authStore.subscribe((state, prev) => {
+    const unsubscribe = useAuthStore.subscribe((state, prev) => {
       const tokenRemoved = !state.accessToken && prev.accessToken;
 
       // Connect when the store transitions into "authorized" — has a validated token.

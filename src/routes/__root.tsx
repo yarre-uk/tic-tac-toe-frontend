@@ -7,6 +7,7 @@ import appCss from '../styles.css?url';
 
 import { useSocketConnection } from '@/hooks/use-socket-connection';
 import { useAuthRefresh } from '@/modules/auth';
+import { useProfile } from '@/modules/profile';
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,9 @@ function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
   // Manages the WebSocket connection lifecycle — connects when a token is available,
   // disconnects on logout. Must run after useAuthRefresh so the token is fresh.
   useSocketConnection();
+  // Fetches user profile once auth is ready and writes it to profileStore.
+  // Enabled only when isAuthorized(), so it never fires for unauthenticated users.
+  useProfile();
 
   return <>{children}</>;
 }

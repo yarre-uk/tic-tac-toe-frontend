@@ -10,7 +10,7 @@ interface AuthStore {
   isAuthorized: () => boolean;
 }
 
-export const authStore = create<AuthStore>((set, get) => ({
+export const useAuthStore = create<AuthStore>((set, get) => ({
   accessToken: null,
   isReady: false,
   setAccessToken(token) {

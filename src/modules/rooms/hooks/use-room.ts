@@ -22,7 +22,7 @@ import { getSocket } from '@/lib/socket';
  *   for exactly one occurrence of the response event then stop listening.
  *
  *   Summary:
- *     return data           → ack callback is called
+ *     return data            → ack callback is called
  *     return { event, data } → client receives a new event named `event`
  *
  * How errors reach the client:
@@ -60,6 +60,7 @@ export function useRoom() {
           : JSON.stringify(wsError.message);
 
       setError(message);
+      console.error('[useRoom]', message);
     });
 
     return () => {

@@ -1,4 +1,4 @@
-import { authStore } from '../store';
+import { useAuthStore } from '../store';
 import type { UserPayload } from '../types';
 
 /**
@@ -13,7 +13,7 @@ import type { UserPayload } from '../types';
 export function useCurrentUser(): UserPayload | null {
   // Selecting only accessToken avoids re-rendering this consumer when
   // unrelated fields (isReady, etc.) change.
-  const accessToken = authStore((s) => s.accessToken);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   if (!accessToken) return null;
 
