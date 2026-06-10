@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 import { Button } from '@/components';
-import { useCurrentUser } from '@/modules/auth';
+import { useCurrentUser } from '@/modules';
 import { RoomLobby, useRoom } from '@/modules/rooms';
 
 export const Route = createFileRoute('/game')({

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { connectSocket, disconnectSocket } from '@/lib/socket';
 import { isDefined } from '@/lib/utils';
-import { useAuthStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules';
 
 /**
  * Manages the WebSocket connection lifecycle for the authenticated part of the app.

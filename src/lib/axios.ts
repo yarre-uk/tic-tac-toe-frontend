@@ -4,7 +4,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { Envs } from './env';
 import { isDefined } from './utils';
 
-import { useAuthStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules';
 
 const BASE_URL = Envs.VITE_API_URL;
 

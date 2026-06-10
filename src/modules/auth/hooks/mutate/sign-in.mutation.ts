@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { SignInDto, TokenResponseDto } from '../../types';
 
 import { api } from '@/lib/axios';
-import { useAuthStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules';
 import type { ApiResult } from '@/types';
 
 export const useSignInMutation = () => {

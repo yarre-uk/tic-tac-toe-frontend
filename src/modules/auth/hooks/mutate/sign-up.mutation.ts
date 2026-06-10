@@ -2,8 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 
 import { api } from '@/lib/axios';
 import { clearObject } from '@/lib/utils';
-import { useAuthStore } from '@/modules/auth/store';
-import type { SignUpDto, TokenResponseDto } from '@/modules/auth/types';
+import { useAuthStore } from '@/modules';
+import type { SignUpDto, TokenResponseDto } from '@/modules';
 import type { ApiResult } from '@/types';
 
 export const useSignUpMutation = () => {

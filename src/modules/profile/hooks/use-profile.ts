@@ -5,7 +5,7 @@ import { useProfileStore } from '../store';
 import type { UserProfile } from '../types';
 
 import { apiAuth } from '@/lib/axios';
-import { useAuthStore } from '@/modules/auth/store';
+import { useAuthStore } from '@/modules';
 import type { ApiResult } from '@/types';
 
 export function useProfile() {

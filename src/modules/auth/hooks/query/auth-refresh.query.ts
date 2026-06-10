@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { api } from '@/lib/axios';
-import { useAuthStore } from '@/modules/auth/store';
-import type { TokenResponseDto } from '@/modules/auth/types';
+import { useAuthStore } from '@/modules';
+import type { TokenResponseDto } from '@/modules';
 import type { ApiResult } from '@/types';
 
 export const useAuthRefresh = () => {
