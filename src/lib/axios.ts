@@ -5,6 +5,7 @@ import { Envs } from './env';
 import { isDefined } from './utils';
 
 import { useAuthStore } from '@/modules';
+import type { ApiResult } from '@/types';
 
 const BASE_URL = Envs.VITE_API_URL;
 
@@ -36,22 +37,34 @@ apiAuth.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const { accessToken } = useAuthStore.getState();
 
   if (isDefined(accessToken)) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+    config.headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
   return config;
 });
+
+type ErrorRes = {
+  success: boolean;
+  error: {
+    message: string;
+    code: number;
+  };
+  timestamp: string;
+  path: string;
+};
 
 apiAuth.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const config = error.config as RetryableConfig | undefined;
 
-    if (
-      error.response?.status !== 401 ||
-      !isDefined(config) ||
-      isDefined(config._retry)
-    ) {
+    const is401 = error.response?.status === 401;
+    const isTokenExpired =
+      (error.response?.data as ErrorRes).error.message ===
+      'Token is invalid or expired';
+    const shouldRefetch = is401 && isTokenExpired;
+
+    if (!shouldRefetch || !isDefined(config) || isDefined(config._retry)) {
       return Promise.reject(error);
     }
 
@@ -61,7 +74,7 @@ apiAuth.interceptors.response.use(
       return new Promise((resolve, reject) => {
         refreshQueue.push({ resolve, reject });
       }).then((token) => {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.set('Authorization', `Bearer ${token}`);
         return apiAuth(config);
       });
     }
@@ -69,12 +82,13 @@ apiAuth.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await api.post<{ accessToken: string }>('/auth/refresh');
+      const res =
+        await api.post<ApiResult<{ accessToken: string }>>('/auth/refresh');
 
-      useAuthStore.getState().setAccessToken(data.accessToken);
-      processQueue(null, data.accessToken);
+      const accessToken = res.data.data.accessToken;
 
-      config.headers.Authorization = `Bearer ${data.accessToken}`;
+      useAuthStore.getState().setAccessToken(accessToken);
+      processQueue(null, accessToken);
 
       return apiAuth(config);
     } catch (refreshError) {

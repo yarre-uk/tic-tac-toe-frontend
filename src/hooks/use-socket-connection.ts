@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 
+import { api } from '@/lib/axios';
 import { connectSocket, disconnectSocket } from '@/lib/socket';
 import { isDefined } from '@/lib/utils';
 import { useAuthStore } from '@/modules';
+import type { ApiResult } from '@/types';
 
 /**
  * Manages the WebSocket connection lifecycle for the authenticated part of the app.
@@ -30,42 +32,47 @@ export function useSocketConnection(): void {
   'use no memo';
 
   useEffect(() => {
-    // Scenario 1: already authorized when this component first mounts.
-    // This only happens if the user refreshed the page AND useAuthRefresh has
-    // already resolved by the time this effect runs — uncommon but possible.
-    const { accessToken, isReady } = useAuthStore.getState();
-    if (accessToken && isReady) {
-      connectSocket(accessToken);
+    // Wraps connectSocket and adds the auth-expiry exception listener so every
+    // new socket instance handles token refresh the same way.
+    function connect(token: string) {
+      const socket = connectSocket(token);
+
+      socket.on('exception', async (wsError: { message: string }) => {
+        if (wsError.message !== 'Token is invalid or expired') return;
+
+        try {
+          const res =
+            await api.post<ApiResult<{ accessToken: string }>>('/auth/refresh');
+
+          const accessToken = res.data.data.accessToken;
+
+          useAuthStore.getState().setAccessToken(accessToken);
+          disconnectSocket();
+          connect(accessToken);
+        } catch {
+          useAuthStore.getState().setAccessToken(null);
+        }
+      });
     }
 
-    // authStore.subscribe(listener) calls `listener(newState, previousState)`
-    // every time the store changes. This is the Zustand equivalent of watching
-    // a value — but outside the React render cycle, which is exactly what we want
-    // for managing a side-effectful resource like a socket.
+    // Scenario 1: already authorized when this component first mounts.
+    const { accessToken, isReady } = useAuthStore.getState();
+    if (accessToken && isReady) {
+      connect(accessToken);
+    }
+
     const unsubscribe = useAuthStore.subscribe((state, prev) => {
       const tokenRemoved = !state.accessToken && prev.accessToken;
 
-      // Connect when the store transitions into "authorized" — has a validated token.
-      // Covers both the page-refresh case (isReady flips true) and the fresh-login
-      // case (token appears while isReady is already true) without needing separate
-      // conditions for each.
       const isAuthorized = state.isAuthorized();
       const wasAuthorized = isDefined(prev.accessToken) && prev.isReady;
       const justBecameAuthorized = isAuthorized && !wasAuthorized;
 
       if (justBecameAuthorized) {
-        connectSocket(state.accessToken!);
+        connect(state.accessToken!);
       } else if (tokenRemoved) {
-        // User logged out — cleanly close the socket so the server removes
-        // them from any rooms before the 60s auto-leave timer fires.
         disconnectSocket();
       }
-
-      // Note: token refresh (new token, prev token both non-null) is not handled here.
-      // The existing socket stays connected; the WsAuthGuard re-validates the token
-      // on each message, so a refreshed token will be picked up on the next event.
-      // If you need to reconnect with the new token (e.g. the old one gets blacklisted
-      // mid-session), handle it in the connect_error listener inside socket.ts.
     });
 
     return () => {

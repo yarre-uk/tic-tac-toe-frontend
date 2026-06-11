@@ -10,7 +10,7 @@ export const useAuthRefresh = () => {
   'use no memo';
 
   const setAccessToken = useAuthStore((s) => s.setAccessToken);
-  const { accessToken, setReady } = useAuthStore();
+  const setReady = useAuthStore((s) => s.setReady);
 
   const query = useQuery({
     queryKey: ['auth', 'refresh'],
@@ -31,7 +31,7 @@ export const useAuthRefresh = () => {
       setAccessToken(null);
       setReady(true);
     }
-  }, [query.status, accessToken]);
+  }, [query.status]);
 
   return query;
 };

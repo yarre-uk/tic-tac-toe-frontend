@@ -1,5 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Link, createFileRoute } from '@tanstack/react-router';
 
+import { Button } from '@/components';
 import { useAuthStore, useProfileStore } from '@/modules';
 
 export const Route = createFileRoute('/app')({
@@ -9,6 +11,11 @@ export const Route = createFileRoute('/app')({
 function App() {
   const { isAuthorized, isReady } = useAuthStore();
   const { profile } = useProfileStore();
+  const queryClient = useQueryClient();
+
+  const handleRefetchProfile = () => {
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+  };
 
   return (
     <div>
@@ -18,6 +25,7 @@ function App() {
       <p>isReady {String(isReady)}</p>
       <p>nickname {profile?.nickname}</p>
       <p>roomId {profile?.roomId}</p>
+      <Button onClick={handleRefetchProfile}>RefetchProfile</Button>
     </div>
   );
 }
