@@ -12,7 +12,7 @@ export const Route = createFileRoute('/game')({
 });
 
 function RouteComponent() {
-  const { room, create, rejoin, leave } = useRoom();
+  const { room, create, rejoin, update, leave } = useRoom();
   const currentUser = useCurrentUser();
   const profileRoomId = useProfileStore((s) => s.profile?.roomId ?? null);
 
@@ -38,6 +38,7 @@ function RouteComponent() {
         room={room}
         currentUserId={currentUser?.sub ?? ''}
         onLeave={leave}
+        onUpdate={update}
       />
     </>
   );

@@ -5,8 +5,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import appCss from '../styles.css?url';
 
-import { useSocketConnection } from '@/hooks/use-socket-connection';
-import { useAuthRefresh, useProfile } from '@/modules';
+import { useAuthRefresh, useProfile, useSocketConnection } from '@/modules';
 
 const queryClient = new QueryClient();
 

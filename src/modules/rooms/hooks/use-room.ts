@@ -11,6 +11,7 @@ import type {
 import { SocketEvent } from '@/constants/socket-events';
 import { getSocket } from '@/lib/socket';
 import { isDefined } from '@/lib/utils';
+import { useSocketStore } from '@/modules/auth/socket-store';
 import { useProfileStore } from '@/modules/profile/store';
 
 /**
@@ -37,9 +38,26 @@ import { useProfileStore } from '@/modules/profile/store';
  *   We listen with socket.on('room:updated', ...) to keep our store in sync.
  */
 export function useRoom() {
+  'use no memo';
+
   const { room, setRoom } = useRoomStore();
   const setRoomId = useProfileStore((s) => s.setRoomId);
+  const socketVersion = useSocketStore((s) => s.version);
   const [error, setError] = useState<string | null>(null);
+
+  // Clear stale room state when the socket reconnects (token refresh creates a
+  // new socket instance). This triggers the auto-rejoin effect in the game route.
+  // room is read via getState() so it doesn't become a dep — we only want this
+  // to fire on socketVersion changes, not on every room update.
+  useEffect(() => {
+    const unsubscribedRoom = useRoomStore.getState().room;
+
+    if (!isDefined(unsubscribedRoom)) {
+      return;
+    }
+
+    rejoin(unsubscribedRoom.id);
+  }, [socketVersion]);
 
   useEffect(() => {
     const socket = getSocket();
@@ -50,13 +68,11 @@ export function useRoom() {
       return;
     }
 
-    // Persistent listener for server-pushed state changes (someone joined/left).
-    socket.on(SocketEvent.Rooms.UPDATED, (updatedRoom: Room) => {
+    function onUpdated(updatedRoom: Room) {
       setRoom(updatedRoom);
-    });
+    }
 
-    // Persistent listener for server-side errors from any handler.
-    socket.on('exception', (wsError: WsError) => {
+    function onException(wsError: WsError) {
       const message =
         typeof wsError.message === 'string'
           ? wsError.message
@@ -64,13 +80,16 @@ export function useRoom() {
 
       setError(message);
       console.error('[useRoom]', message);
-    });
+    }
+
+    socket.on(SocketEvent.Rooms.UPDATED, onUpdated);
+    socket.on('exception', onException);
 
     return () => {
-      socket.off(SocketEvent.Rooms.UPDATED);
-      socket.off('exception');
+      socket.off(SocketEvent.Rooms.UPDATED, onUpdated);
+      socket.off('exception', onException);
     };
-  }, [setRoom]);
+  }, [setRoom, socketVersion]);
 
   function clearError() {
     setError(null);
@@ -144,6 +163,18 @@ export function useRoom() {
   }
 
   /**
+   * Updates the room name. The response arrives as room:updated which the
+   * persistent listener above already handles — no socket.once needed.
+   */
+  function update(name: string) {
+    const socket = getSocket();
+    if (!isDefined(socket) || !isDefined(room)) return;
+
+    clearError();
+    socket.emit(SocketEvent.Rooms.UPDATE, { roomId: room.id, data: { name } });
+  }
+
+  /**
    * Leaves the current room.
    * Listens once for room:left, then clears local state.
    */
@@ -163,5 +194,5 @@ export function useRoom() {
     socket.emit(SocketEvent.Rooms.LEAVE);
   }
 
-  return { room, create, join, rejoin, leave, error, clearError };
+  return { room, create, join, rejoin, update, leave, error, clearError };
 }
