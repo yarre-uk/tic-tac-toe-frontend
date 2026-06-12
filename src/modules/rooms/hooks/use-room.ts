@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useRoomStore } from '../store';
 import type {
@@ -17,25 +17,21 @@ import { useProfileStore } from '@/modules/profile/store';
 /**
  * Provides room actions and subscribes to server-pushed room updates.
  *
- * Why we use socket.once() instead of ack callbacks:
- *   NestJS @SubscribeMessage handlers that return { event, data } do NOT call the
- *   ack callback — instead NestJS emits the named event to the client as a new
- *   message. So `socket.emit('room:create', payload, ackFn)` would leave `ackFn`
- *   uncalled even on success. We use socket.once(responseEvent, handler) to listen
- *   for exactly one occurrence of the response event then stop listening.
+ * All actions use Socket.IO ack callbacks: socket.emit(event, payload, ackFn).
+ * NestJS calls the ack when the handler returns a plain value (not { event, data }).
  *
- *   Summary:
- *     return data            → ack callback is called
- *     return { event, data } → client receives a new event named `event`
+ * Retry on reconnect:
+ *   Every emit is registered in pendingEmits. When the ack fires the entry is
+ *   removed. When socketVersion bumps (token refresh → new socket), the listeners
+ *   effect replays all still-pending emits on the new socket.
  *
  * How errors reach the client:
  *   When a handler throws, NestJS's WsExceptionFilter emits an `exception` event.
- *   We listen for it and surface it as `error` state.
+ *   Token-expiry exceptions are handled by use-socket-connection and filtered here.
  *
  * How server broadcasts work (room:updated):
- *   When someone else joins or leaves, the server calls client.to(roomId).emit(...)
- *   which sends the event to everyone in the Socket.IO room except the sender.
- *   We listen with socket.on('room:updated', ...) to keep our store in sync.
+ *   The server calls client.to(roomId).emit(...) to notify everyone in the room
+ *   except the sender. We listen with socket.on('room:updated', ...) to stay in sync.
  */
 export function useRoom() {
   'use no memo';
@@ -44,26 +40,12 @@ export function useRoom() {
   const setRoomId = useProfileStore((s) => s.setRoomId);
   const socketVersion = useSocketStore((s) => s.version);
   const [error, setError] = useState<string | null>(null);
+  const pendingEmits = useRef<Array<() => void>>([]);
 
-  // Clear stale room state when the socket reconnects (token refresh creates a
-  // new socket instance). This triggers the auto-rejoin effect in the game route.
-  // room is read via getState() so it doesn't become a dep — we only want this
-  // to fire on socketVersion changes, not on every room update.
-  useEffect(() => {
-    const unsubscribedRoom = useRoomStore.getState().room;
-
-    if (!isDefined(unsubscribedRoom)) {
-      return;
-    }
-
-    rejoin(unsubscribedRoom.id);
-  }, [socketVersion]);
-
+  // Re-attach persistent listeners on reconnect, then replay any emits that
+  // were in flight when the old socket was replaced.
   useEffect(() => {
     const socket = getSocket();
-
-    // Socket may be null if useRoom is rendered before useSocketConnection
-    // has run (e.g. on an unauthenticated route). Safe to bail early.
     if (!isDefined(socket)) {
       return;
     }
@@ -73,6 +55,11 @@ export function useRoom() {
     }
 
     function onException(wsError: WsError) {
+      // Token expiry is handled upstream in use-socket-connection.
+      if (wsError.message === 'Token is invalid or expired') {
+        return;
+      }
+
       const message =
         typeof wsError.message === 'string'
           ? wsError.message
@@ -85,6 +72,8 @@ export function useRoom() {
     socket.on(SocketEvent.Rooms.UPDATED, onUpdated);
     socket.on('exception', onException);
 
+    pendingEmits.current.forEach((attempt) => attempt());
+
     return () => {
       socket.off(SocketEvent.Rooms.UPDATED, onUpdated);
       socket.off('exception', onException);
@@ -95,103 +84,86 @@ export function useRoom() {
     setError(null);
   }
 
-  /**
-   * Creates a new room and joins it.
-   * Listens once for room:created — the event NestJS emits from the handler's
-   * `return { event: 'room:created', data }` return value.
-   */
-  function create(payload: CreateRoomPayload = {}) {
-    const socket = getSocket();
-    if (!isDefined(socket)) {
-      return;
-    }
-
+  function emitWithRetry<T>(
+    event: string,
+    payload: unknown,
+    onAck: (data: T) => void,
+  ): void {
     clearError();
 
-    // socket.once() registers a listener that fires exactly once and then removes
-    // itself. This is the correct pattern for one-shot request/response over WS.
-    socket.once(SocketEvent.Rooms.CREATED, (created: Room) => {
+    function attempt() {
+      const socket = getSocket();
+
+      if (!isDefined(socket)) {
+        return;
+      }
+
+      socket.emit(event, payload, (data: T) => {
+        const idx = pendingEmits.current.indexOf(attempt);
+
+        if (idx !== -1) {
+          pendingEmits.current.splice(idx, 1);
+        }
+
+        onAck(data);
+      });
+    }
+
+    pendingEmits.current.push(attempt);
+    attempt();
+  }
+
+  function create(payload: CreateRoomPayload = {}) {
+    emitWithRetry<Room>(SocketEvent.Rooms.CREATE, payload, (created) => {
       setRoom(created);
       setRoomId(created.id);
     });
-
-    socket.emit(SocketEvent.Rooms.CREATE, payload);
   }
 
-  /**
-   * Joins an existing room by ID.
-   * Listens once for room:joined.
-   */
   function join(roomId: string) {
-    const socket = getSocket();
-    if (!isDefined(socket)) {
-      return;
-    }
-
     const payload: JoinRoomPayload = { roomId };
 
-    clearError();
-
-    socket.once(SocketEvent.Rooms.JOINED, (joined: Room) => {
+    emitWithRetry<Room>(SocketEvent.Rooms.JOIN, payload, (joined) => {
       setRoom(joined);
       setRoomId(joined.id);
     });
-
-    socket.emit(SocketEvent.Rooms.JOIN, payload);
   }
 
   /**
-   * Rejoins an existing room after a page reload.
-   * Unlike join(), this does not modify the DB — it only re-registers the new
-   * socket into the Socket.IO room. Takes roomId explicitly because the room
-   * store is empty after a reload.
+   * Rejoins an existing room after a page reload or socket reconnect.
+   * Unlike join(), this does not modify the DB — it only re-registers the
+   * socket into the Socket.IO room.
    */
   function rejoin(roomId: string) {
-    const socket = getSocket();
-    if (!isDefined(socket)) {
-      return;
-    }
-
-    clearError();
-
-    socket.once(SocketEvent.Rooms.REJOINED, (joined: Room) => {
+    emitWithRetry<Room>(SocketEvent.Rooms.REJOIN, { roomId }, (joined) => {
       setRoom(joined);
       setRoomId(joined.id);
     });
-
-    socket.emit(SocketEvent.Rooms.REJOIN, { roomId });
   }
 
   /**
-   * Updates the room name. The response arrives as room:updated which the
-   * persistent listener above already handles — no socket.once needed.
+   * Updates the room name. The ack returns the updated room for the sender;
+   * the persistent room:updated listener handles the update for other players.
    */
   function update(name: string) {
-    const socket = getSocket();
-    if (!isDefined(socket) || !isDefined(room)) return;
-
-    clearError();
-    socket.emit(SocketEvent.Rooms.UPDATE, { roomId: room.id, data: { name } });
-  }
-
-  /**
-   * Leaves the current room.
-   * Listens once for room:left, then clears local state.
-   */
-  function leave() {
-    const socket = getSocket();
-    if (!isDefined(socket)) {
+    if (!isDefined(room)) {
       return;
     }
 
-    clearError();
+    emitWithRetry<Room>(
+      SocketEvent.Rooms.UPDATE,
+      { roomId: room.id, data: { name } },
+      (updated) => {
+        setRoom(updated);
+      },
+    );
+  }
 
-    socket.once(SocketEvent.Rooms.LEFT, () => {
+  function leave() {
+    emitWithRetry<null>(SocketEvent.Rooms.LEAVE, {}, () => {
       setRoom(null);
       setRoomId(null);
     });
-
-    socket.emit(SocketEvent.Rooms.LEAVE);
   }
 
   return { room, create, join, rejoin, update, leave, error, clearError };
