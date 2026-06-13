@@ -39,6 +39,7 @@ export function useRoom() {
   const { room, setRoom } = useRoomStore();
   const setRoomId = useProfileStore((s) => s.setRoomId);
   const socketVersion = useSocketStore((s) => s.version);
+
   const [error, setError] = useState<string | null>(null);
   const pendingEmits = useRef<Array<() => void>>([]);
 

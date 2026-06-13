@@ -18,6 +18,7 @@ export function RoomLobby({
   onUpdate,
 }: Readonly<RoomLobbyProps>) {
   const [name, setName] = useState(room.name ?? '');
+
   return (
     <div className="flex flex-col gap-4 rounded border border-gray-200 bg-white p-6">
       <div className="flex items-center justify-between">
