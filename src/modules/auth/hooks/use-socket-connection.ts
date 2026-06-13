@@ -37,12 +37,22 @@ export function useSocketConnection(): void {
   'use no memo';
 
   useEffect(() => {
+    let isRefreshing = false;
+
     function connect(token: string) {
       const socket = connectSocket(token);
       useSocketStore.getState().bump();
 
       socket.on('exception', async (wsError: { message: string }) => {
-        if (wsError.message !== 'Token is invalid or expired') return;
+        if (wsError.message !== 'Token is invalid or expired') {
+          return;
+        }
+
+        if (isRefreshing) {
+          return;
+        }
+
+        isRefreshing = true;
 
         try {
           const res =
@@ -55,6 +65,8 @@ export function useSocketConnection(): void {
           connect(accessToken);
         } catch {
           useAuthStore.getState().setAccessToken(null);
+        } finally {
+          isRefreshing = false;
         }
       });
     }

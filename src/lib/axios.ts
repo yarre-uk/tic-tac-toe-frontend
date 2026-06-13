@@ -4,7 +4,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { Envs } from './env';
 import { isDefined } from './utils';
 
-import { useAuthStore } from '@/modules';
+import { useAuthStore } from '@/modules/auth/store';
 import type { ApiResult } from '@/types';
 
 const BASE_URL = Envs.VITE_API_URL;
@@ -30,6 +30,7 @@ function processQueue(error: unknown, token: string | null) {
       resolve(token);
     }
   });
+
   refreshQueue = [];
 }
 
