@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import type { Room } from '../types';
 
 import { Button } from '@/components';
@@ -6,13 +8,16 @@ interface RoomLobbyProps {
   room: Room;
   currentUserId: string;
   onLeave: () => void;
+  onUpdate: (name: string) => void;
 }
 
 export function RoomLobby({
   room,
   currentUserId,
   onLeave,
+  onUpdate,
 }: Readonly<RoomLobbyProps>) {
+  const [name, setName] = useState(room.name ?? '');
   return (
     <div className="flex flex-col gap-4 rounded border border-gray-200 bg-white p-6">
       <div className="flex items-center justify-between">
@@ -62,6 +67,16 @@ export function RoomLobby({
         {room.players.length < 2 && (
           <p className="text-xs text-gray-400">Waiting for another player…</p>
         )}
+      </div>
+
+      <div className="flex gap-2">
+        <input
+          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Room name"
+        />
+        <Button onClick={() => onUpdate(name)}>Update</Button>
       </div>
 
       <Button
