@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components';
 import { isDefined } from '@/lib/utils';
 import {
+  Chat,
   RoomLobby,
   useCurrentUser,
   useProfileStore,
@@ -52,14 +53,19 @@ function RouteComponent() {
     );
   }
 
+  const userId = currentUser?.sub ?? '';
+
   return (
-    <>
+    <div className="flex gap-4">
       <RoomLobby
         room={room}
-        currentUserId={currentUser?.sub ?? ''}
+        currentUserId={userId}
         onLeave={leave}
         onUpdate={update}
       />
-    </>
+      <div className="h-120 w-80">
+        <Chat roomId={room.id} userId={userId} />
+      </div>
+    </div>
   );
 }

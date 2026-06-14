@@ -2,6 +2,10 @@
 //   "domain:action"  — client→server commands  (room:join, room:leave)
 //   "domain:actioned" — server→client responses (room:joined, room:updated)
 export const SocketEvent = {
+  Chat: {
+    SEND: 'chat:send',
+    MESSAGE: 'chat:message',
+  },
   Rooms: {
     CREATE: 'room:create',
     JOIN: 'room:join',
