@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useRoomStore } from '../store';
-import type {
-  CreateRoomPayload,
-  JoinRoomPayload,
-  Room,
-  WsError,
-} from '../types';
+import type { CreateRoomPayload, Room, WsError } from '../types';
 
 import { SocketEvent } from '@/constants/socket-events';
-import { getSocket } from '@/lib/socket';
+import { emitWithRetry, getSocket } from '@/lib/socket';
 import { isDefined } from '@/lib/utils';
 import { useSocketStore } from '@/modules/auth/socket-store';
 import { useProfileStore } from '@/modules/profile/store';
@@ -70,14 +65,29 @@ export function useRoom() {
       console.error('[useRoom]', message);
     }
 
+    // Fires when the socket (re)connects. On server restart, Socket.IO's built-in
+    // reconnection reuses the same socket object — connectSocket() is never called
+    // again, so socketVersion never bumps. This listener catches that case:
+    // if we already have a room in the store it means the session survived a restart
+    // and we need to re-register the socket into the Socket.IO room on the server.
+    function onConnect() {
+      const storeRoomId = useRoomStore.getState().room?.id;
+
+      if (isDefined(storeRoomId)) {
+        rejoin(storeRoomId);
+      }
+    }
+
     socket.on(SocketEvent.Rooms.UPDATED, onUpdated);
     socket.on('exception', onException);
+    socket.on('connect', onConnect);
 
     pendingEmits.current.forEach((attempt) => attempt());
 
     return () => {
       socket.off(SocketEvent.Rooms.UPDATED, onUpdated);
       socket.off('exception', onException);
+      socket.off('connect', onConnect);
     };
   }, [setRoom, socketVersion]);
 
@@ -85,49 +95,32 @@ export function useRoom() {
     setError(null);
   }
 
-  function emitWithRetry<T>(
-    event: string,
-    payload: unknown,
-    onAck: (data: T) => void,
-  ): void {
+  function create(payload: CreateRoomPayload = {}) {
     clearError();
 
-    function attempt() {
-      const socket = getSocket();
-
-      if (!isDefined(socket)) {
-        return;
-      }
-
-      socket.emit(event, payload, (data: T) => {
-        const idx = pendingEmits.current.indexOf(attempt);
-
-        if (idx !== -1) {
-          pendingEmits.current.splice(idx, 1);
-        }
-
-        onAck(data);
-      });
-    }
-
-    pendingEmits.current.push(attempt);
-    attempt();
-  }
-
-  function create(payload: CreateRoomPayload = {}) {
-    emitWithRetry<Room>(SocketEvent.Rooms.CREATE, payload, (created) => {
-      setRoom(created);
-      setRoomId(created.id);
-    });
+    emitWithRetry<Room>(
+      pendingEmits,
+      SocketEvent.Rooms.CREATE,
+      payload,
+      (created) => {
+        setRoom(created);
+        setRoomId(created.id);
+      },
+    );
   }
 
   function join(roomId: string) {
-    const payload: JoinRoomPayload = { roomId };
+    clearError();
 
-    emitWithRetry<Room>(SocketEvent.Rooms.JOIN, payload, (joined) => {
-      setRoom(joined);
-      setRoomId(joined.id);
-    });
+    emitWithRetry<Room>(
+      pendingEmits,
+      SocketEvent.Rooms.JOIN,
+      { roomId },
+      (joined) => {
+        setRoom(joined);
+        setRoomId(joined.id);
+      },
+    );
   }
 
   /**
@@ -136,10 +129,15 @@ export function useRoom() {
    * socket into the Socket.IO room.
    */
   function rejoin(roomId: string) {
-    emitWithRetry<Room>(SocketEvent.Rooms.REJOIN, { roomId }, (joined) => {
-      setRoom(joined);
-      setRoomId(joined.id);
-    });
+    emitWithRetry<Room>(
+      pendingEmits,
+      SocketEvent.Rooms.REJOIN,
+      { roomId },
+      (joined) => {
+        setRoom(joined);
+        setRoomId(joined.id);
+      },
+    );
   }
 
   /**
@@ -151,7 +149,9 @@ export function useRoom() {
       return;
     }
 
+    clearError();
     emitWithRetry<Room>(
+      pendingEmits,
       SocketEvent.Rooms.UPDATE,
       { roomId: room.id, data: { name } },
       (updated) => {
@@ -161,7 +161,9 @@ export function useRoom() {
   }
 
   function leave() {
-    emitWithRetry<null>(SocketEvent.Rooms.LEAVE, {}, () => {
+    clearError();
+
+    emitWithRetry<null>(pendingEmits, SocketEvent.Rooms.LEAVE, {}, () => {
       setRoom(null);
       setRoomId(null);
     });

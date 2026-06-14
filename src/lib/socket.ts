@@ -81,3 +81,33 @@ export function disconnectSocket(): void {
 export function getSocket(): Socket | null {
   return socket;
 }
+
+/**
+ * Emits a Socket.IO event with an ack callback and registers the attempt in
+ * `pendingEmits` so it can be replayed on reconnect.
+ *
+ * When the ack fires the attempt is removed from the list. When the socket
+ * is replaced (token refresh or server restart), the caller's effect should
+ * replay `pendingEmits.current` on the new socket — covering all in-flight
+ * emits that never received an ack.
+ */
+export function emitWithRetry<T>(
+  pendingEmits: { current: Array<() => void> },
+  event: string,
+  payload: unknown,
+  onAck: (data: T) => void,
+): void {
+  function attempt() {
+    const s = getSocket();
+    if (!s) return;
+
+    s.emit(event, payload, (data: T) => {
+      const idx = pendingEmits.current.indexOf(attempt);
+      if (idx !== -1) pendingEmits.current.splice(idx, 1);
+      onAck(data);
+    });
+  }
+
+  pendingEmits.current.push(attempt);
+  attempt();
+}
