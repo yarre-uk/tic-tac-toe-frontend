@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "tic-tac-toe-frontend",
+			"path": "."
+		},
+		{
+			"name": "tic-tac-toe-backend",
+			"path": "../tic-tac-toe-backend"
+		}
+	],
+	"settings": {}
+}

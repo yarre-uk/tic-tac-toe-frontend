@@ -1,6 +1,6 @@
 import type { GameActions } from '../types';
 
-import { Button, Card, Text } from '@/components';
+import { Button, Card, OMark, Text, XMark } from '@/components';
 import { cn, isDefined } from '@/lib/utils';
 
 function getStatusText(
@@ -66,16 +66,19 @@ export function TTTBoard({
               }
               className={cn(
                 'bg-muted flex size-20 items-center justify-center rounded-2xl md:size-25 lg:size-30',
-                'text-4xl font-bold text-black select-none md:text-5xl lg:text-6xl',
-                'transition-all duration-200 ease-in-out',
+                'transition-all duration-200 ease-in-out select-none',
                 isClickable && 'cursor-pointer hover:scale-105',
                 cell === 'X' && 'bg-x-soft text-x border-x',
                 cell === 'O' && 'border-o bg-o-soft text-o',
                 isWinCell && 'scale-105',
               )}
             >
-              {cell === 'X' && 'X'}
-              {cell === 'O' && 'O'}
+              {cell === 'X' && (
+                <XMark className="size-10 md:size-13 lg:size-16" />
+              )}
+              {cell === 'O' && (
+                <OMark className="size-10 md:size-13 lg:size-16" />
+              )}
             </Card>
           );
         })}
