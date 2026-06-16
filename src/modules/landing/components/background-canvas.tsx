@@ -53,8 +53,5 @@ export function BackgroundCanvas() {
     };
   }, []);
 
-  // The container fills its positioned ancestor. The landing route's root div
-  // must be `relative` so this sits at (0,0) of the page content, not the
-  // viewport.
   return <div ref={containerRef} className="absolute inset-0 -z-10" />;
 }
