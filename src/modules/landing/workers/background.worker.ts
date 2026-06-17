@@ -34,8 +34,8 @@ const SYMBOL_SIZE = 0.3;
 const BASE_ALPHA = 0.3;
 
 const MOUSE_PARTICLES_MAX = 10;
-const MOUSE_PARTICLES_RANGE = 100;
-const MOUSE_MIN_DIST = 50;
+const MOUSE_PARTICLES_RANGE = 75;
+const MOUSE_MIN_DIST = 30;
 const MOUSE_INITIAL_PARTICLES = Math.floor(MOUSE_PARTICLES_MAX / 2);
 
 function animationStep(timestamp: number) {
@@ -58,17 +58,24 @@ function startLoop() {
 // Respawn — pick the candidate furthest from all live particles
 // ---------------------------------------------------------------------------
 
-function findPosition(): { x: number; y: number } {
-  let bestX = randomInRange(0, width);
-  let bestY = randomInRange(0, height);
+function findPosition(
+  pool: Array<Particle>,
+  minDist: number,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+): { x: number; y: number } {
+  let bestX = randomInRange(startX, endX);
+  let bestY = randomInRange(startY, endY);
   let bestClosestDistSq = -1;
 
   for (let i = 0; i < CANDIDATES; i++) {
-    const candidateX = randomInRange(0, width);
-    const candidateY = randomInRange(0, height);
+    const candidateX = randomInRange(startX, endX);
+    const candidateY = randomInRange(startY, endY);
     let closestDistSq = Infinity;
 
-    for (const p of particles) {
+    for (const p of pool) {
       const deltaX = p.x - candidateX;
       const deltaY = p.y - candidateY;
       const distSq = deltaX * deltaX + deltaY * deltaY;
@@ -83,49 +90,7 @@ function findPosition(): { x: number; y: number } {
       bestX = candidateX;
       bestY = candidateY;
 
-      if (bestClosestDistSq >= MIN_DIST * MIN_DIST) {
-        break;
-      }
-    }
-  }
-
-  return { x: bestX, y: bestY };
-}
-
-function findMousePosition(): { x: number; y: number } | null {
-  if (mouseX === null || mouseY === null) {
-    return null;
-  }
-
-  let bestX =
-    mouseX + randomInRange(-MOUSE_PARTICLES_RANGE, MOUSE_PARTICLES_RANGE);
-  let bestY =
-    mouseY + randomInRange(-MOUSE_PARTICLES_RANGE, MOUSE_PARTICLES_RANGE);
-  let bestClosestDistSq = -1;
-
-  for (let i = 0; i < CANDIDATES; i++) {
-    const candidateX =
-      mouseX + randomInRange(-MOUSE_PARTICLES_RANGE, MOUSE_PARTICLES_RANGE);
-    const candidateY =
-      mouseY + randomInRange(-MOUSE_PARTICLES_RANGE, MOUSE_PARTICLES_RANGE);
-    let closestDistSq = Infinity;
-
-    for (const p of mouseParticles) {
-      const deltaX = p.x - candidateX;
-      const deltaY = p.y - candidateY;
-      const distSq = deltaX * deltaX + deltaY * deltaY;
-
-      if (distSq < closestDistSq) {
-        closestDistSq = distSq;
-      }
-    }
-
-    if (closestDistSq > bestClosestDistSq) {
-      bestClosestDistSq = closestDistSq;
-      bestX = candidateX;
-      bestY = candidateY;
-
-      if (bestClosestDistSq >= MOUSE_MIN_DIST * MOUSE_MIN_DIST) {
+      if (bestClosestDistSq >= minDist * minDist) {
         break;
       }
     }
@@ -198,6 +163,7 @@ function mouseSpeedMultiplier(p: Particle): number {
   const dy = p.y - mouseY;
   const dist = Math.sqrt(dx * dx + dy * dy);
   const excess = Math.max(0, dist - MOUSE_PARTICLES_RANGE);
+
   return 1 + excess / MOUSE_PARTICLES_RANGE;
 }
 
@@ -210,8 +176,13 @@ function redraw() {
 
   for (const p of [...particles]) {
     const progress = (Date.now() - p.createdAt) / p.duration;
+
     if (progress >= 1) {
-      expire(p);
+      expireParticle(p, particles, () =>
+        spawnParticle(particles, MAX_PARTICLES, () =>
+          findPosition(particles, MIN_DIST, 0, 0, width, height),
+        ),
+      );
     } else {
       drawSymbol(p, progress);
     }
@@ -220,10 +191,26 @@ function redraw() {
   for (const p of [...mouseParticles]) {
     const multiplier = mouseSpeedMultiplier(p);
     const progress = ((Date.now() - p.createdAt) / p.duration) * multiplier;
+
     if (progress >= 1) {
-      expireMouseParticle(p);
+      expireParticle(p, mouseParticles, () =>
+        spawnParticle(mouseParticles, MOUSE_PARTICLES_MAX, () => {
+          if (mouseX === null || mouseY === null) {
+            return null;
+          }
+
+          return findPosition(
+            mouseParticles,
+            MOUSE_MIN_DIST,
+            mouseX - MOUSE_PARTICLES_RANGE,
+            mouseY - MOUSE_PARTICLES_RANGE,
+            mouseX + MOUSE_PARTICLES_RANGE,
+            mouseY + MOUSE_PARTICLES_RANGE,
+          );
+        }),
+      );
     } else {
-      drawSymbol(p, multiplier);
+      drawSymbol(p, progress);
     }
   }
 }
@@ -244,55 +231,39 @@ function makeParticle(x: number, y: number): Particle {
   };
 }
 
-function spawnOne() {
-  if (particles.length >= MAX_PARTICLES) {
+function spawnParticle(
+  pool: Array<Particle>,
+  max: number,
+  findPos: () => { x: number; y: number } | null,
+) {
+  if (pool.length >= max) {
     return;
   }
 
-  const pos = findPosition();
-  particles.push(makeParticle(pos.x, pos.y));
-}
-
-function expire(particle: Particle) {
-  const idx = particles.indexOf(particle);
-  if (idx === -1) {
-    return;
-  }
-
-  particles.splice(idx, 1);
-
-  const count = Math.floor(randomInRange(1, 4));
-
-  for (let i = 0; i < count; i++) {
-    self.setTimeout(spawnOne, i * SPAWN_STAGGER + randomInRange(0, 200));
-  }
-}
-
-function spawnMouseOne() {
-  if (mouseParticles.length >= MOUSE_PARTICLES_MAX) {
-    return;
-  }
-
-  const pos = findMousePosition();
+  const pos = findPos();
   if (!pos) {
     return;
   }
 
-  mouseParticles.push(makeParticle(pos.x, pos.y));
+  pool.push(makeParticle(pos.x, pos.y));
 }
 
-function expireMouseParticle(particle: Particle) {
-  const idx = mouseParticles.indexOf(particle);
+function expireParticle(
+  particle: Particle,
+  pool: Array<Particle>,
+  spawn: () => void,
+) {
+  const idx = pool.indexOf(particle);
   if (idx === -1) {
     return;
   }
 
-  mouseParticles.splice(idx, 1);
+  pool.splice(idx, 1);
 
   const count = Math.floor(randomInRange(1, 4));
 
   for (let i = 0; i < count; i++) {
-    self.setTimeout(spawnMouseOne, i * SPAWN_STAGGER + randomInRange(0, 200));
+    self.setTimeout(spawn, i * SPAWN_STAGGER + randomInRange(0, 200));
   }
 }
 
@@ -300,8 +271,9 @@ function initParticles() {
   particles = [];
 
   for (let i = 0; i < INITIAL_PARTICLES; i++) {
-    const pos = findPosition();
-    particles.push(makeParticle(pos.x, pos.y));
+    spawnParticle(particles, MAX_PARTICLES, () =>
+      findPosition(particles, MIN_DIST, 0, 0, width, height),
+    );
   }
 
   redraw();
@@ -337,7 +309,17 @@ function handleMouse(msg: MouseMessage) {
 
   if (mouseParticles.length === 0) {
     for (let i = 0; i < MOUSE_INITIAL_PARTICLES; i++) {
-      spawnMouseOne();
+      spawnParticle(mouseParticles, MOUSE_PARTICLES_MAX, () => {
+        if (mouseX === null || mouseY === null) return null;
+        return findPosition(
+          mouseParticles,
+          MOUSE_MIN_DIST,
+          mouseX - MOUSE_PARTICLES_RANGE,
+          mouseY - MOUSE_PARTICLES_RANGE,
+          mouseX + MOUSE_PARTICLES_RANGE,
+          mouseY + MOUSE_PARTICLES_RANGE,
+        );
+      });
     }
   }
 }
