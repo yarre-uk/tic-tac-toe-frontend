@@ -18,4 +18,5 @@ export interface Particle {
   spin: number;
   createdAt: number;
   duration: number;
+  speedMultiplier: number;
 }

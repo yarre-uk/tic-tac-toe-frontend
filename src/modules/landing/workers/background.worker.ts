@@ -126,19 +126,21 @@ function drawO() {
   ctx.stroke();
 }
 
-function drawSymbol(p: Particle, progress: number) {
+function drawSymbol(p: Particle, progress: number, pureProgress?: number) {
   if (!ctx) {
     return;
   }
 
-  const wave = Math.sin(progress * Math.PI);
-  const alpha = BASE_ALPHA * wave;
-  const scale = SYMBOL_SIZE * (0.5 + 0.5 * wave);
+  const animProgress = pureProgress ?? progress;
+  const fadeWave = Math.sin(progress * Math.PI);
+  const animWave = Math.sin(animProgress * Math.PI);
+  const alpha = BASE_ALPHA * fadeWave;
+  const scale = SYMBOL_SIZE * (0.5 + 0.5 * animWave);
 
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.translate(p.x, p.y);
-  ctx.rotate(p.angle + p.spin * progress);
+  ctx.rotate(p.angle + p.spin * animProgress);
   ctx.scale(scale, scale);
   ctx.lineWidth = MARK_STROKE;
   ctx.lineCap = 'round';
@@ -189,8 +191,9 @@ function redraw() {
   }
 
   for (const p of [...mouseParticles]) {
-    const multiplier = mouseSpeedMultiplier(p);
-    const progress = ((Date.now() - p.createdAt) / p.duration) * multiplier;
+    p.speedMultiplier = Math.max(p.speedMultiplier, mouseSpeedMultiplier(p));
+    const pureProgress = (Date.now() - p.createdAt) / p.duration;
+    const progress = pureProgress * p.speedMultiplier;
 
     if (progress >= 1) {
       expireParticle(p, mouseParticles, () =>
@@ -210,7 +213,7 @@ function redraw() {
         }),
       );
     } else {
-      drawSymbol(p, progress);
+      drawSymbol(p, progress, pureProgress);
     }
   }
 }
@@ -228,6 +231,7 @@ function makeParticle(x: number, y: number): Particle {
     spin: randomInRange(-Math.PI / 2, Math.PI / 2),
     duration: randomInRange(LIFETIME_MIN, LIFETIME_MAX),
     createdAt: Date.now(),
+    speedMultiplier: 1,
   };
 }
 
