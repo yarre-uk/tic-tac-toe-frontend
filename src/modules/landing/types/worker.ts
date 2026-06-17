@@ -19,4 +19,5 @@ export interface Particle {
   createdAt: number;
   duration: number;
   speedMultiplier: number;
+  isMouseParticle: boolean;
 }
