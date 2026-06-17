@@ -7,7 +7,8 @@ export type InitMessage = {
   colors: Colors;
 };
 export type ResizeMessage = { type: 'resize'; width: number; height: number };
-export type WorkerMessage = InitMessage | ResizeMessage;
+export type MouseMessage = { type: 'mouse'; x: number; y: number };
+export type WorkerMessage = InitMessage | ResizeMessage | MouseMessage;
 
 export interface Particle {
   x: number;
@@ -15,7 +16,6 @@ export interface Particle {
   type: SymbolType;
   angle: number;
   spin: number;
-  timerId: number;
   createdAt: number;
   duration: number;
 }

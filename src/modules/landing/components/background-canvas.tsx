@@ -1,9 +1,22 @@
 import { useEffect, useRef } from 'react';
 
+import type { WorkerMessage } from '../types';
 import BackgroundWorker from '../workers/background.worker?worker';
+
+import { useResizeObserver } from '@/hooks/use-resize';
+import { isDefined } from '@/lib/utils';
+
+function send(
+  worker: Worker,
+  msg: WorkerMessage,
+  transfer?: Array<Transferable>,
+) {
+  worker.postMessage(msg, transfer ?? []);
+}
 
 export function BackgroundCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -11,11 +24,6 @@ export function BackgroundCanvas() {
       return;
     }
 
-    // Create the canvas imperatively so each effect invocation gets a fresh
-    // element. Assigning to canvasRef and calling transferControlToOffscreen()
-    // permanently marks the DOM node as a placeholder — in React StrictMode
-    // the effect runs twice, and the second run would hit a DOMException if
-    // we tried to set width/transfer again on the same node.
     const canvas = document.createElement('canvas');
     canvas.style.cssText = 'position:absolute;inset:0;pointer-events:none';
     container.appendChild(canvas);
@@ -23,8 +31,6 @@ export function BackgroundCanvas() {
     canvas.width = container.offsetWidth;
     canvas.height = container.offsetHeight;
 
-    // Read CSS custom properties on the main thread — the worker has no DOM
-    // access so this is the only place they can be resolved.
     const style = getComputedStyle(document.documentElement);
     const colors = {
       x: style.getPropertyValue('--x').trim(),
@@ -32,26 +38,41 @@ export function BackgroundCanvas() {
     };
 
     const worker = new BackgroundWorker();
+    workerRef.current = worker;
     const offscreen = canvas.transferControlToOffscreen();
-    worker.postMessage({ type: 'init', canvas: offscreen, colors }, [
-      offscreen,
-    ]);
+    send(worker, { type: 'init', canvas: offscreen, colors }, [offscreen]);
 
-    // ResizeObserver tracks the container's actual rendered size — covers both
-    // window resizes and page content growing taller than the viewport.
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      worker.postMessage({ type: 'resize', width, height });
-    });
+    function handleMouseMove(e: MouseEvent) {
+      if (!isDefined(container)) {
+        throw new Error('Container is not define!');
+      }
 
-    observer.observe(container);
+      const rect = container.getBoundingClientRect();
+
+      send(worker, {
+        type: 'mouse',
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    }
+
+    window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
-      observer.disconnect();
+      window.removeEventListener('mousemove', handleMouseMove);
       worker.terminate();
+      workerRef.current = null;
       canvas.remove();
     };
   }, []);
+
+  useResizeObserver(containerRef, ([entry]) => {
+    const { width, height } = entry.contentRect;
+
+    if (workerRef.current) {
+      send(workerRef.current, { type: 'resize', width, height });
+    }
+  });
 
   return <div ref={containerRef} className="absolute inset-0 -z-10" />;
 }
