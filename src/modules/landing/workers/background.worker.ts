@@ -15,6 +15,8 @@ let width = 0;
 let height = 0;
 const colors: Colors = { x: '#59aaf8', o: '#f3625d' };
 let particles: Array<Particle> = [];
+let particleCount = 0;
+let mouseParticleCount = 0;
 const TARGET_FRAMERATE = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FRAMERATE;
 let loopStarted = false;
@@ -36,6 +38,7 @@ const MOUSE_PARTICLES_MAX = 10;
 const MOUSE_PARTICLES_RANGE = 75;
 const MOUSE_MIN_DIST = 30;
 const MOUSE_INITIAL_PARTICLES = Math.floor(MOUSE_PARTICLES_MAX / 2);
+const MAX_SPEED_MULTIPLIER = 3;
 
 function animationStep(timestamp: number) {
   if (timestamp - lastFrameTime >= FRAME_INTERVAL) {
@@ -161,10 +164,16 @@ function mouseSpeedMultiplier(p: Particle): number {
 
   const dx = p.x - mouseX;
   const dy = p.y - mouseY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const excess = Math.max(0, dist - MOUSE_PARTICLES_RANGE);
+  const distSq = dx * dx + dy * dy;
+  const rangeSq = MOUSE_PARTICLES_RANGE * MOUSE_PARTICLES_RANGE;
 
-  return 1 + excess / MOUSE_PARTICLES_RANGE;
+  if (distSq <= rangeSq) {
+    return 1;
+  }
+
+  const excess = Math.sqrt(distSq) - MOUSE_PARTICLES_RANGE;
+
+  return Math.min(MAX_SPEED_MULTIPLIER, 1 + excess / MOUSE_PARTICLES_RANGE);
 }
 
 function redraw() {
@@ -174,10 +183,14 @@ function redraw() {
 
   ctx.clearRect(0, 0, width, height);
 
-  for (const p of [...particles]) {
+  const now = Date.now();
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+
     if (p.isMouseParticle) {
       p.speedMultiplier = Math.max(p.speedMultiplier, mouseSpeedMultiplier(p));
-      const pureProgress = (Date.now() - p.createdAt) / p.duration;
+      const pureProgress = (now - p.createdAt) / p.duration;
       const progress = pureProgress * p.speedMultiplier;
 
       if (progress >= 1) {
@@ -196,13 +209,11 @@ function redraw() {
             );
           }),
         );
-
-        continue;
+      } else {
+        drawSymbol(p, progress, pureProgress);
       }
-
-      drawSymbol(p, progress, pureProgress);
     } else {
-      const progress = (Date.now() - p.createdAt) / p.duration;
+      const progress = (now - p.createdAt) / p.duration;
 
       if (progress >= 1) {
         expireParticle(p, () =>
@@ -210,11 +221,9 @@ function redraw() {
             findPosition(MIN_DIST, 0, 0, width, height),
           ),
         );
-
-        continue;
+      } else {
+        drawSymbol(p, progress);
       }
-
-      drawSymbol(p, progress);
     }
   }
 }
@@ -246,12 +255,7 @@ function spawnParticle(
   max: number,
   findPos: () => { x: number; y: number } | null,
 ) {
-  let count = 0;
-  for (const p of particles) {
-    if (p.isMouseParticle === isMouseParticle) {
-      count++;
-    }
-  }
+  const count = isMouseParticle ? mouseParticleCount : particleCount;
 
   if (count >= max) {
     return;
@@ -263,6 +267,12 @@ function spawnParticle(
   }
 
   particles.push(makeParticle(pos.x, pos.y, isMouseParticle));
+
+  if (isMouseParticle) {
+    mouseParticleCount++;
+  } else {
+    particleCount++;
+  }
 }
 
 function expireParticle(particle: Particle, spawn: () => void) {
@@ -273,6 +283,12 @@ function expireParticle(particle: Particle, spawn: () => void) {
 
   particles.splice(idx, 1);
 
+  if (particle.isMouseParticle) {
+    mouseParticleCount--;
+  } else {
+    particleCount--;
+  }
+
   const count = Math.floor(randomInRange(1, 4));
 
   for (let i = 0; i < count; i++) {
@@ -282,6 +298,8 @@ function expireParticle(particle: Particle, spawn: () => void) {
 
 function initParticles() {
   particles = [];
+  particleCount = 0;
+  mouseParticleCount = 0;
 
   for (let i = 0; i < INITIAL_PARTICLES; i++) {
     spawnParticle(false, MAX_PARTICLES, () =>
@@ -320,14 +338,7 @@ function handleMouse(msg: MouseMessage) {
   mouseX = msg.x;
   mouseY = msg.y;
 
-  let mouseCount = 0;
-  for (const p of particles) {
-    if (p.isMouseParticle) {
-      mouseCount++;
-    }
-  }
-
-  if (mouseCount === 0) {
+  if (mouseParticleCount === 0) {
     for (let i = 0; i < MOUSE_INITIAL_PARTICLES; i++) {
       spawnParticle(true, MOUSE_PARTICLES_MAX, () => {
         if (mouseX === null || mouseY === null) return null;
