@@ -1,10 +1,4 @@
-import {
-  MARK_RADIUS,
-  MARK_SIZE,
-  MARK_STROKE,
-  MARK_VIEWBOX,
-} from './mark-geometry';
-
+import { MARK_RADIUS, MARK_SIZE, MARK_STROKE, MARK_VIEWBOX } from '@/constants';
 import { cn } from '@/lib/utils';
 
 export function XMark({ className }: Readonly<{ className?: string }>) {

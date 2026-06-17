@@ -1,40 +1,39 @@
-/* eslint-disable sonarjs/pseudo-random */
-import {
-  MARK_ARM,
-  MARK_RADIUS,
-  MARK_STROKE,
-} from '@/components/ui/mark-geometry';
+import type {
+  Colors,
+  InitMessage,
+  Particle,
+  ResizeMessage,
+  SymbolType,
+  WorkerMessage,
+} from '../types';
 
-type Colors = { x: string; o: string };
-type SymbolType = 'x' | 'o';
-
-type WorkerMessage =
-  | { type: 'init'; canvas: OffscreenCanvas; colors: Colors }
-  | { type: 'resize'; width: number; height: number };
-
-interface Particle {
-  x: number;
-  y: number;
-  type: SymbolType;
-  angle: number;
-  spin: number;
-  timerId: number;
-  createdAt: number;
-  duration: number;
-}
+import { MARK_ARM, MARK_RADIUS, MARK_STROKE } from '@/constants';
+import { randomInRange } from '@/lib/utils';
 
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
 let width = 0;
 let height = 0;
 const colors: Colors = { x: '#59aaf8', o: '#f3625d' };
 let particles: Array<Particle> = [];
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 let loopStarted = false;
+let lastFrameTime = 0;
+
+function animationStep(timestamp: number) {
+  if (timestamp - lastFrameTime >= FRAME_INTERVAL) {
+    lastFrameTime = timestamp;
+    redraw();
+  }
+
+  self.requestAnimationFrame(animationStep);
+}
 
 function startLoop() {
   if (loopStarted) return;
 
   loopStarted = true;
-  self.setInterval(redraw, 1000 / 30);
+  self.requestAnimationFrame(animationStep);
 }
 
 const MIN_DIST = 80;
@@ -44,35 +43,41 @@ const LIFETIME_MIN = 2000;
 const LIFETIME_MAX = 6000;
 const CANDIDATES = 30;
 const SPAWN_STAGGER = 400;
-const SYMBOL_SIZE = 0.25;
-const BASE_ALPHA = 0.3;
+const SYMBOL_SIZE = 1;
+const BASE_ALPHA = 0.35;
 
 // ---------------------------------------------------------------------------
 // Respawn — pick the candidate furthest from all live particles
 // ---------------------------------------------------------------------------
 
 function findPosition(): { x: number; y: number } {
-  let bestX = Math.random() * width;
-  let bestY = Math.random() * height;
-  let bestDist = -1;
+  let bestX = randomInRange(0, width);
+  let bestY = randomInRange(0, height);
+  let bestClosestDistSq = -1;
 
   for (let i = 0; i < CANDIDATES; i++) {
-    const x = Math.random() * width;
-    const y = Math.random() * height;
-    let minSq = Infinity;
+    const candidateX = randomInRange(0, width);
+    const candidateY = randomInRange(0, height);
+    let closestDistSq = Infinity;
 
     for (const p of particles) {
-      const dx = p.x - x;
-      const dy = p.y - y;
-      const sq = dx * dx + dy * dy;
-      if (sq < minSq) minSq = sq;
+      const deltaX = p.x - candidateX;
+      const deltaY = p.y - candidateY;
+      const distSq = deltaX * deltaX + deltaY * deltaY;
+
+      if (distSq < closestDistSq) {
+        closestDistSq = distSq;
+      }
     }
 
-    if (minSq > bestDist) {
-      bestDist = minSq;
-      bestX = x;
-      bestY = y;
-      if (bestDist >= MIN_DIST * MIN_DIST) break;
+    if (closestDistSq > bestClosestDistSq) {
+      bestClosestDistSq = closestDistSq;
+      bestX = candidateX;
+      bestY = candidateY;
+
+      if (bestClosestDistSq >= MIN_DIST * MIN_DIST) {
+        break;
+      }
     }
   }
 
@@ -171,19 +176,20 @@ function expire(particle: Particle) {
 
   particles.splice(idx, 1);
 
-  const count = Math.floor(Math.random() * 3) + 1;
+  const count = Math.floor(randomInRange(1, 4));
 
   for (let i = 0; i < count; i++) {
-    self.setTimeout(spawnOne, i * SPAWN_STAGGER + Math.random() * 200);
+    self.setTimeout(spawnOne, i * SPAWN_STAGGER + randomInRange(0, 200));
   }
 }
 
 function makeParticle(x: number, y: number): Particle {
-  const type: SymbolType = Math.random() < 0.5 ? 'x' : 'o';
-  const angle = Math.random() * Math.PI * 2;
-  const spin = (Math.random() - 0.5) * Math.PI;
-  const duration = LIFETIME_MIN + Math.random() * (LIFETIME_MAX - LIFETIME_MIN);
+  const type: SymbolType = randomInRange(0, 1) < 0.5 ? 'x' : 'o';
+  const angle = randomInRange(0, Math.PI * 2);
+  const spin = randomInRange(-Math.PI / 2, Math.PI / 2);
+  const duration = randomInRange(LIFETIME_MIN, LIFETIME_MAX);
   const createdAt = Date.now();
+
   const particle: Particle = {
     x,
     y,
@@ -218,25 +224,35 @@ function initParticles() {
 }
 
 // ---------------------------------------------------------------------------
-// Message handler
+// Message handlers
 // ---------------------------------------------------------------------------
+
+function handleInit(msg: InitMessage) {
+  colors.x = msg.colors.x;
+  colors.o = msg.colors.o;
+  ctx = msg.canvas.getContext('2d');
+  width = ctx!.canvas.width;
+  height = ctx!.canvas.height;
+  initParticles();
+  startLoop();
+}
+
+function handleResize(msg: ResizeMessage) {
+  width = msg.width;
+  height = msg.height;
+
+  ctx!.canvas.width = width;
+  ctx!.canvas.height = height;
+
+  initParticles();
+}
 
 self.onmessage = (event: MessageEvent<WorkerMessage>) => {
   const msg = event.data;
 
   if (msg.type === 'init') {
-    colors.x = msg.colors.x;
-    colors.o = msg.colors.o;
-    ctx = msg.canvas.getContext('2d');
-    width = ctx!.canvas.width;
-    height = ctx!.canvas.height;
-    initParticles();
-    startLoop();
+    handleInit(msg);
   } else {
-    width = msg.width;
-    height = msg.height;
-    ctx!.canvas.width = width;
-    ctx!.canvas.height = height;
-    initParticles();
+    handleResize(msg);
   }
 };
