@@ -3,6 +3,12 @@ import type { GameActions } from '../types';
 import { Button, Card, OMark, Text, XMark } from '@/components';
 import { cn, isDefined } from '@/lib/utils';
 
+function getCellVolClass(cell: string | null): string {
+  if (cell === 'X') return 'vol-base vol-x-dark bg-x-soft text-x border-x';
+  if (cell === 'O') return 'vol-base vol-o-dark border-o bg-o-soft text-o';
+  return 'vol-base vol-natural';
+}
+
 function getStatusText(
   status: string,
   winner: string | null,
@@ -67,9 +73,8 @@ export function TTTBoard({
               className={cn(
                 'bg-muted flex size-20 items-center justify-center rounded-2xl md:size-25 lg:size-30',
                 'transition-all duration-200 ease-in-out select-none',
-                isClickable && 'cursor-pointer hover:scale-105',
-                cell === 'X' && 'bg-x-soft text-x border-x',
-                cell === 'O' && 'border-o bg-o-soft text-o',
+                isClickable && 'cursor-pointer',
+                getCellVolClass(cell),
                 isWinCell && 'scale-105',
               )}
             >

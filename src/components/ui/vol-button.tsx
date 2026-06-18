@@ -2,31 +2,37 @@ import { Button as ButtonPrimitive } from '@base-ui/react/button';
 
 import { cn } from '@/lib/utils';
 
-type KeycapButtonProps = ButtonPrimitive.Props & {
+const variantClass = { base: 'vol-base', outlined: 'vol-outlined' } as const;
+const colorClass = { x: 'vol-x', o: 'vol-o', natural: 'vol-natural' } as const;
+
+type VolButtonProps = ButtonPrimitive.Props & {
   variant?: 'base' | 'outlined';
-  color?: 'x' | 'o';
+  color?: 'x' | 'o' | 'natural';
+  arrow?: boolean;
 };
 
-function KeycapButton({
+function VolButton({
   variant = 'base',
   color = 'x',
+  arrow,
   className,
   children,
   ...props
-}: KeycapButtonProps) {
+}: VolButtonProps) {
   return (
     <ButtonPrimitive
       className={cn(
         'vol-btn',
-        variant === 'base' ? 'vol-base' : 'vol-outlined',
-        color === 'o' && 'vol-o',
+        variantClass[variant],
+        colorClass[color],
         className,
       )}
       {...props}
     >
       {children}
+      {arrow && <span className="vol-arrow">→</span>}
     </ButtonPrimitive>
   );
 }
 
-export { KeycapButton };
+export { VolButton };
