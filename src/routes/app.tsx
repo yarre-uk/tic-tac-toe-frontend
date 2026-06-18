@@ -19,8 +19,17 @@ function App() {
 
   return (
     <div>
-      <Link to="/app">app</Link>
-      <Link to="/game">game</Link>
+      <div className="">
+        <Button>
+          <Link to="/">landing</Link>
+        </Button>
+        <Button>
+          <Link to="/app">app</Link>
+        </Button>
+        <Button>
+          <Link to="/game">game</Link>
+        </Button>
+      </div>
       <p>isAuthorized {String(isAuthorized())}</p>
       <p>isReady {String(isReady)}</p>
       <p>nickname {profile?.nickname}</p>

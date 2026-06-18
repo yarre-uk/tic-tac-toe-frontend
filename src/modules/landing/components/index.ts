@@ -1,3 +1,4 @@
+export * from './background-canvas';
 export * from './feature';
 export * from './game';
 export * from './header';

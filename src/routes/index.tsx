@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
 import {
   FeaturesLanding,
@@ -13,7 +13,6 @@ export const Route = createFileRoute('/')({ component: Landing });
 function Landing() {
   return (
     <div className="flex flex-col gap-12">
-      <Link to="/app">app</Link>
       <LandingHeader />
       <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
         <LandingTitle className="" />

@@ -41,3 +41,8 @@ export function clearObject<T extends object>(obj: T): T {
 export function toRange(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
+
+export function randomInRange(min: number, max: number): number {
+  // eslint-disable-next-line sonarjs/pseudo-random
+  return min + Math.random() * (max - min);
+}

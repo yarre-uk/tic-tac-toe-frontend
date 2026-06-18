@@ -1,4 +1,6 @@
-import { Text } from '@/components';
+import { Link } from '@tanstack/react-router';
+
+import { Button, Text } from '@/components';
 import { cn } from '@/lib/utils';
 
 export function LandingInfo({ className }: Readonly<{ className?: string }>) {
@@ -17,6 +19,17 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
         private room to challenge a friend online, and chat while you play.
       </Text>
       <Text weight="light">made by / Yaroslav Syvukha</Text>
+
+      <div className="flex gap-2 md:gap-4">
+        <Link to="/app">
+          <Button size="lg">Play Now</Button>
+        </Link>
+        <Link to="/game">
+          <Button size="lg" variant="secondary">
+            Create a room
+          </Button>
+        </Link>
+      </div>
 
       <hr />
 
