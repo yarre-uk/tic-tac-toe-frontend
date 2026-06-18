@@ -13,14 +13,19 @@ import { randomInRange } from '@/lib/utils';
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
 let width = 0;
 let height = 0;
+
 const colors: Colors = { x: '#59aaf8', o: '#f3625d' };
+
 let particles: Array<Particle> = [];
 let particleCount = 0;
 let mouseParticleCount = 0;
+
 const TARGET_FRAMERATE = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FRAMERATE;
+
 let loopStarted = false;
 let lastFrameTime = 0;
+
 let mouseX: number | null = null;
 let mouseY: number | null = null;
 
@@ -40,6 +45,10 @@ const MOUSE_MIN_DIST = 30;
 const MOUSE_INITIAL_PARTICLES = Math.floor(MOUSE_PARTICLES_MAX / 2);
 const MAX_SPEED_MULTIPLIER = 3;
 
+/**
+ * requestAnimationFrame reschedules unconditionally every frame; the interval guard throttles
+ * actual draws to TARGET_FRAMERATE without breaking the loop cadence.
+ */
 function animationStep(timestamp: number) {
   if (timestamp - lastFrameTime >= FRAME_INTERVAL) {
     lastFrameTime = timestamp;
@@ -56,10 +65,11 @@ function startLoop() {
   self.requestAnimationFrame(animationStep);
 }
 
-// ---------------------------------------------------------------------------
-// Respawn — pick the candidate furthest from all live particles
-// ---------------------------------------------------------------------------
-
+/**
+ * Mitchell's best-candidate: samples CANDIDATES random positions inside the
+ * bounding box and keeps whichever is furthest from all live particles.
+ * Early-exits as soon as a candidate already satisfies minDist to save work.
+ */
 function findPosition(
   minDist: number,
   startX: number,
@@ -100,10 +110,6 @@ function findPosition(
   return { x: bestX, y: bestY };
 }
 
-// ---------------------------------------------------------------------------
-// Drawing
-// ---------------------------------------------------------------------------
-
 function drawX() {
   if (!ctx) {
     return;
@@ -127,6 +133,12 @@ function drawO() {
   ctx.stroke();
 }
 
+/**
+ * Draws a particle's symbol at its current animation state.
+ * `progress` drives fading (sin wave over full lifetime).
+ * `pureProgress` — when provided (mouse particles) — drives scale and rotation
+ * independently so those animations aren't affected by the speed multiplier.
+ */
 function drawSymbol(p: Particle, progress: number, pureProgress?: number) {
   if (!ctx) {
     return;
@@ -157,6 +169,12 @@ function drawSymbol(p: Particle, progress: number, pureProgress?: number) {
   ctx.restore();
 }
 
+/**
+ * Returns a decay multiplier > 1 for particles outside the mouse spawn range,
+ * making them fade faster as the cursor moves away.
+ * Skips sqrt when the particle is already inside the range (distSq check).
+ * Capped at MAX_SPEED_MULTIPLIER to prevent instant vanish.
+ */
 function mouseSpeedMultiplier(p: Particle): number {
   if (mouseX === null || mouseY === null) {
     return 1;
@@ -176,6 +194,11 @@ function mouseSpeedMultiplier(p: Particle): number {
   return Math.min(MAX_SPEED_MULTIPLIER, 1 + excess / MOUSE_PARTICLES_RANGE);
 }
 
+/**
+ * Clears the canvas and redraws all live particles.
+ * Iterates backwards so splice(idx, 1) inside expireParticle only shifts
+ * indices already visited, avoiding skipped elements without a copy.
+ */
 function redraw() {
   if (!ctx) {
     return;
@@ -228,10 +251,6 @@ function redraw() {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Particle lifecycle
-// ---------------------------------------------------------------------------
-
 function makeParticle(
   x: number,
   y: number,
@@ -250,6 +269,11 @@ function makeParticle(
   };
 }
 
+/**
+ * Adds a particle if the per-type cap hasn't been reached.
+ * Counts are kept at module level (particleCount / mouseParticleCount) so
+ * this check is O(1) instead of scanning the full array each call.
+ */
 function spawnParticle(
   isMouseParticle: boolean,
   max: number,
@@ -275,6 +299,10 @@ function spawnParticle(
   }
 }
 
+/**
+ * Removes the particle and schedules 1–3 replacements with random stagger
+ * so refills arrive as an organic burst rather than all at once.
+ */
 function expireParticle(particle: Particle, spawn: () => void) {
   const idx = particles.indexOf(particle);
   if (idx === -1) {
@@ -289,9 +317,9 @@ function expireParticle(particle: Particle, spawn: () => void) {
     particleCount--;
   }
 
-  const count = Math.floor(randomInRange(1, 4));
+  const amount = Math.floor(randomInRange(1, 4));
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < amount; i++) {
     self.setTimeout(spawn, i * SPAWN_STAGGER + randomInRange(0, 200));
   }
 }
@@ -310,16 +338,15 @@ function initParticles() {
   redraw();
 }
 
-// ---------------------------------------------------------------------------
-// Message handlers
-// ---------------------------------------------------------------------------
-
 function handleInit(msg: InitMessage) {
   colors.x = msg.colors.x;
   colors.o = msg.colors.o;
+
   ctx = msg.canvas.getContext('2d');
+
   width = ctx!.canvas.width;
   height = ctx!.canvas.height;
+
   initParticles();
   startLoop();
 }
@@ -334,6 +361,10 @@ function handleResize(msg: ResizeMessage) {
   initParticles();
 }
 
+/**
+ * Seeds the initial mouse-particle burst on first cursor entry.
+ * Subsequent spawns are handled by the expire→spawn cycle in redraw.
+ */
 function handleMouse(msg: MouseMessage) {
   mouseX = msg.x;
   mouseY = msg.y;
@@ -341,7 +372,10 @@ function handleMouse(msg: MouseMessage) {
   if (mouseParticleCount === 0) {
     for (let i = 0; i < MOUSE_INITIAL_PARTICLES; i++) {
       spawnParticle(true, MOUSE_PARTICLES_MAX, () => {
-        if (mouseX === null || mouseY === null) return null;
+        if (mouseX === null || mouseY === null) {
+          return null;
+        }
+
         return findPosition(
           MOUSE_MIN_DIST,
           mouseX - MOUSE_PARTICLES_RANGE,
