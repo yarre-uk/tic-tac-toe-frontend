@@ -22,15 +22,20 @@
 
   /* X accent (blue) */
   --x: #59aaf8;
+  --x-deep: #4f6fbf;
   --x-soft: rgba(111, 155, 255, 0.14);
   --x-line: rgba(111, 155, 255, 0.35);
   --x-glow: rgba(111, 155, 255, 0.5);
 
   /* O accent (coral) */
   --o: #f3625d;
+  --o-deep: #c0533f;
   --o-soft: rgba(255, 118, 96, 0.14);
   --o-line: rgba(255, 118, 96, 0.35);
   --o-glow: rgba(255, 118, 96, 0.5);
+
+  --ink-on-accent: #1a1c20;
+  --line-strong: #5a5e66;
 
   /* Semantic (component layer) */
   --background: var(--bg-page);
@@ -78,15 +83,20 @@
 
   /* X accent */
   --color-x: var(--x);
+  --color-x-deep: var(--x-deep);
   --color-x-soft: var(--x-soft);
   --color-x-line: var(--x-line);
   --color-x-glow: var(--x-glow);
 
   /* O accent */
   --color-o: var(--o);
+  --color-o-deep: var(--o-deep);
   --color-o-soft: var(--o-soft);
   --color-o-line: var(--o-line);
   --color-o-glow: var(--o-glow);
+
+  --color-ink-on-accent: var(--ink-on-accent);
+  --color-line-strong: var(--line-strong);
 
   /* Semantic (component layer) */
   --color-background: var(--background);
@@ -127,4 +137,147 @@ input:-webkit-autofill {
   transition:
     background-color 9999s ease-in-out,
     color 9999s ease-in-out;
+}
+
+@layer components {
+  .vol-btn {
+    font-family: var(--font-sono);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 20px;
+    border-radius: 13px;
+    line-height: 1;
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition:
+      transform 90ms ease,
+      box-shadow 90ms ease;
+    will-change: transform;
+    outline: none;
+  }
+
+  .vol-btn .vol-arrow {
+    font-weight: 700;
+    transition: transform 160ms ease;
+  }
+
+  .vol-btn:hover .vol-arrow {
+    transform: translateX(3px);
+  }
+
+  /* B4 — base: filled accent face */
+  .vol-base {
+    background: var(--x);
+    color: var(--ink-on-accent);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.35),
+      0 6px 0 var(--x-deep),
+      0 7px 6px oklch(0 0 0 / 0.4);
+  }
+
+  .vol-base:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.35),
+      0 4px 0 var(--x-deep),
+      0 5px 5px oklch(0 0 0 / 0.4);
+  }
+
+  .vol-base:active {
+    transform: translateY(6px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.25),
+      0 0 0 var(--x-deep),
+      0 0 0 oklch(0 0 0 / 0.4);
+  }
+
+  .vol-base.vol-o {
+    background: var(--o);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.3),
+      0 6px 0 var(--o-deep),
+      0 7px 6px oklch(0 0 0 / 0.4);
+  }
+
+  .vol-base.vol-o:hover {
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.3),
+      0 4px 0 var(--o-deep),
+      0 5px 5px oklch(0 0 0 / 0.4);
+  }
+
+  .vol-base.vol-o:active {
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.2),
+      0 0 0 var(--o-deep),
+      0 0 0 oklch(0 0 0 / 0.4);
+  }
+
+  /* B5 — outlined: neutral face, accent lip */
+  .vol-outlined {
+    background: var(--bg-panel);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.12),
+      0 6px 0 var(--x),
+      0 7px 7px oklch(0 0 0 / 0.45);
+  }
+
+  .vol-outlined:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.12),
+      0 4px 0 var(--x),
+      0 5px 6px oklch(0 0 0 / 0.45);
+  }
+
+  .vol-outlined:active {
+    transform: translateY(6px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.08),
+      0 0 0 var(--x),
+      0 0 0 oklch(0 0 0 / 0.45);
+  }
+
+  .vol-outlined.vol-o {
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.12),
+      0 6px 0 var(--o),
+      0 7px 7px oklch(0 0 0 / 0.45);
+  }
+
+  .vol-outlined.vol-o:hover {
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.12),
+      0 4px 0 var(--o),
+      0 5px 6px oklch(0 0 0 / 0.45);
+  }
+
+  .vol-outlined.vol-o:active {
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.08),
+      0 0 0 var(--o),
+      0 0 0 oklch(0 0 0 / 0.45);
+  }
+
+  /* Focus rings */
+  .vol-base:focus-visible,
+  .vol-outlined:focus-visible {
+    outline: 2px solid var(--x);
+    outline-offset: 3px;
+  }
+
+  .vol-base.vol-o:focus-visible,
+  .vol-outlined.vol-o:focus-visible {
+    outline: 2px solid var(--o);
+  }
 }
