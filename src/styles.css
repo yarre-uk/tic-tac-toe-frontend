@@ -108,9 +108,7 @@
   --radius-md: var(--radius-md);
 }
 
-html,
-body,
-#app {
+html {
   min-height: 100%;
 }
 

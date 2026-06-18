@@ -57,8 +57,9 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="relative overflow-x-hidden">
+      <body className="relative min-h-screen overflow-x-hidden">
         <BackgroundCanvas />
+
         <div className="mx-auto max-w-270 px-4 md:px-10 lg:px-20 xl:px-0 2xl:max-w-390 2xl:px-10">
           <QueryClientProvider client={queryClient}>
             <AppShell>{children}</AppShell>

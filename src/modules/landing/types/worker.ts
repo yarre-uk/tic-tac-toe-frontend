@@ -8,7 +8,12 @@ export type InitMessage = {
 };
 export type ResizeMessage = { type: 'resize'; width: number; height: number };
 export type MouseMessage = { type: 'mouse'; x: number; y: number };
-export type WorkerMessage = InitMessage | ResizeMessage | MouseMessage;
+export type MouseLeaveMessage = { type: 'mouseleave' };
+export type WorkerMessage =
+  | InitMessage
+  | ResizeMessage
+  | MouseMessage
+  | MouseLeaveMessage;
 
 export interface Particle {
   x: number;

@@ -15,7 +15,6 @@ let width = 0;
 let height = 0;
 
 const colors: Colors = { x: '#59aaf8', o: '#f3625d' };
-
 let particles: Array<Particle> = [];
 let particleCount = 0;
 let mouseParticleCount = 0;
@@ -29,13 +28,14 @@ let lastFrameTime = 0;
 let mouseX: number | null = null;
 let mouseY: number | null = null;
 
+const isDebug = false as boolean;
+
 const MIN_DIST = 80;
-const MAX_PARTICLES = 30;
-const INITIAL_PARTICLES = Math.floor(MAX_PARTICLES / 10);
+const PARTICLE_DENSITY = 0.2; // particles per 10 000 px²
 const LIFETIME_MIN = 2000;
 const LIFETIME_MAX = 6000;
 const CANDIDATES = 15;
-const SPAWN_STAGGER = 400;
+const SPAWN_STAGGER = 500;
 const SYMBOL_SIZE = 0.3;
 const BASE_ALPHA = 0.3;
 
@@ -43,7 +43,11 @@ const MOUSE_PARTICLES_MAX = 10;
 const MOUSE_PARTICLES_RANGE = 75;
 const MOUSE_MIN_DIST = 30;
 const MOUSE_INITIAL_PARTICLES = Math.floor(MOUSE_PARTICLES_MAX / 2);
-const MAX_SPEED_MULTIPLIER = 3;
+const MAX_SPEED_MULTIPLIER = 4;
+
+function maxParticles(): number {
+  return Math.max(5, Math.round((PARTICLE_DENSITY * width * height) / 10_000));
+}
 
 /**
  * requestAnimationFrame reschedules unconditionally every frame; the interval guard throttles
@@ -59,7 +63,9 @@ function animationStep(timestamp: number) {
 }
 
 function startLoop() {
-  if (loopStarted) return;
+  if (loopStarted) {
+    return;
+  }
 
   loopStarted = true;
   self.requestAnimationFrame(animationStep);
@@ -108,6 +114,29 @@ function findPosition(
   }
 
   return { x: bestX, y: bestY };
+}
+
+function drawDebug() {
+  if (!ctx) {
+    return;
+  }
+
+  const lines = [
+    `canvas: ${width}×${height}`,
+    `particles: ${particleCount} / ${maxParticles()}`,
+    `mouse particles: ${mouseParticleCount} / ${MOUSE_PARTICLES_MAX}`,
+    `mouse: ${mouseX?.toFixed(0) ?? '—'}, ${mouseY?.toFixed(0) ?? '—'}`,
+  ];
+
+  ctx.save();
+  ctx.font = '12px monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], 8, 16 + i * 16);
+  }
+
+  ctx.restore();
 }
 
 function drawX() {
@@ -240,7 +269,7 @@ function redraw() {
 
       if (progress >= 1) {
         expireParticle(p, () =>
-          spawnParticle(false, MAX_PARTICLES, () =>
+          spawnParticle(false, maxParticles(), () =>
             findPosition(MIN_DIST, 0, 0, width, height),
           ),
         );
@@ -248,6 +277,10 @@ function redraw() {
         drawSymbol(p, progress);
       }
     }
+  }
+
+  if (isDebug) {
+    drawDebug();
   }
 }
 
@@ -329,8 +362,10 @@ function initParticles() {
   particleCount = 0;
   mouseParticleCount = 0;
 
-  for (let i = 0; i < INITIAL_PARTICLES; i++) {
-    spawnParticle(false, MAX_PARTICLES, () =>
+  const initial = Math.floor(maxParticles() / 4);
+
+  for (let i = 0; i < initial; i++) {
+    spawnParticle(false, maxParticles(), () =>
       findPosition(MIN_DIST, 0, 0, width, height),
     );
   }
@@ -351,14 +386,25 @@ function handleInit(msg: InitMessage) {
   startLoop();
 }
 
+/**
+ * Snapshots the current frame before resizing the canvas buffer, then draws it
+ * back immediately after. Setting canvas.width/height always clears the buffer;
+ * without the snapshot Firefox composites the blank state as a visible flash
+ * before the next redraw fires. The stretched snapshot covers that gap.
+ */
 function handleResize(msg: ResizeMessage) {
+  const snapshot = ctx!.canvas.transferToImageBitmap();
+
   width = msg.width;
   height = msg.height;
 
   ctx!.canvas.width = width;
   ctx!.canvas.height = height;
 
-  initParticles();
+  ctx!.drawImage(snapshot, 0, 0, width, height);
+  snapshot.close();
+
+  redraw();
 }
 
 /**
@@ -395,7 +441,10 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
     handleInit(msg);
   } else if (msg.type === 'resize') {
     handleResize(msg);
-  } else {
+  } else if (msg.type === 'mouse') {
     handleMouse(msg);
+  } else {
+    mouseX = null;
+    mouseY = null;
   }
 };

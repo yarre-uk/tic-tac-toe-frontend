@@ -42,10 +42,16 @@ export function BackgroundCanvas() {
     const offscreen = canvas.transferControlToOffscreen();
     send(worker, { type: 'init', canvas: offscreen, colors }, [offscreen]);
 
+    let lastClientX: number | null = null;
+    let lastClientY: number | null = null;
+
     function handleMouseMove(e: MouseEvent) {
       if (!isDefined(container)) {
         throw new Error('Container is not define!');
       }
+
+      lastClientX = e.clientX;
+      lastClientY = e.clientY;
 
       const rect = container.getBoundingClientRect();
 
@@ -56,10 +62,61 @@ export function BackgroundCanvas() {
       });
     }
 
+    function handleMouseLeave() {
+      lastClientX = null;
+      lastClientY = null;
+      send(worker, { type: 'mouseleave' });
+    }
+
+    function handleScroll() {
+      if (!container || lastClientX === null || lastClientY === null) {
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+
+      send(worker, {
+        type: 'mouse',
+        x: lastClientX - rect.left,
+        y: lastClientY - rect.top,
+      });
+    }
+
+    function handleTouch(e: TouchEvent) {
+      if (!container) {
+        return;
+      }
+
+      const touch = e.touches[0];
+      const rect = container.getBoundingClientRect();
+
+      send(worker, {
+        type: 'mouse',
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top,
+      });
+    }
+
+    function handleTouchEnd() {
+      send(worker, { type: 'mouseleave' });
+    }
+
     window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('touchstart', handleTouch);
+    window.addEventListener('touchmove', handleTouch);
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('touchstart', handleTouch);
+      window.removeEventListener('touchmove', handleTouch);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
       worker.terminate();
       workerRef.current = null;
       canvas.remove();
