@@ -23,10 +23,10 @@ function App() {
         <Button>
           <Link to="/">landing</Link>
         </Button>
-        <Button>
+        <Button variant="outlined">
           <Link to="/app">app</Link>
         </Button>
-        <Button>
+        <Button color="o">
           <Link to="/game">game</Link>
         </Button>
       </div>
@@ -34,7 +34,9 @@ function App() {
       <p>isReady {String(isReady)}</p>
       <p>nickname {profile?.nickname}</p>
       <p>roomId {profile?.roomId}</p>
-      <Button onClick={handleRefetchProfile}>RefetchProfile</Button>
+      <Button color="natural" onClick={handleRefetchProfile}>
+        RefetchProfile
+      </Button>
     </div>
   );
 }

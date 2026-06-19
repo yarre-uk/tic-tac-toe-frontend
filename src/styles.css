@@ -143,36 +143,10 @@ input:-webkit-autofill {
 
 @layer components {
   .vol-btn {
-    font-family: var(--font-sono);
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.01em;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 13px 20px;
-    border-radius: 13px;
-    line-height: 1;
-    cursor: pointer;
-    border: none;
-    background: none;
-    text-decoration: none;
     -webkit-tap-highlight-color: transparent;
-    user-select: none;
     transition:
       transform 90ms ease,
       box-shadow 90ms ease;
-    will-change: transform;
-    outline: none;
-  }
-
-  .vol-btn .vol-arrow {
-    font-weight: 700;
-    transition: transform 160ms ease;
-  }
-
-  .vol-btn:hover .vol-arrow {
-    transform: translateX(3px);
   }
 
   /* Color tokens — set CSS vars consumed by vol-base and vol-outlined */
@@ -227,24 +201,21 @@ input:-webkit-autofill {
     color: var(--vol-ink);
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / var(--vol-hi, 0.35)),
-      0 6px 0 var(--vol-lip),
-      0 7px 6px oklch(0 0 0 / 0.4);
+      0 6px 0 var(--vol-lip);
   }
 
   .vol-base:hover {
     transform: translateY(2px);
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / var(--vol-hi, 0.35)),
-      0 4px 0 var(--vol-lip),
-      0 5px 5px oklch(0 0 0 / 0.4);
+      0 4px 0 var(--vol-lip);
   }
 
   .vol-base:active {
     transform: translateY(6px);
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / var(--vol-hi-active, 0.25)),
-      0 0 0 var(--vol-lip),
-      0 0 0 oklch(0 0 0 / 0.4);
+      0 0 0 var(--vol-lip);
   }
 
   /* vol-outlined — neutral face, accent lip */
@@ -254,24 +225,21 @@ input:-webkit-autofill {
     border: 1px solid var(--line-strong);
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / 0.12),
-      0 6px 0 var(--vol-accent, var(--x)),
-      0 7px 7px oklch(0 0 0 / 0.45);
+      0 6px 0 var(--vol-accent, var(--x));
   }
 
   .vol-outlined:hover {
     transform: translateY(2px);
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / 0.12),
-      0 4px 0 var(--vol-accent, var(--x)),
-      0 5px 6px oklch(0 0 0 / 0.45);
+      0 4px 0 var(--vol-accent, var(--x));
   }
 
   .vol-outlined:active {
     transform: translateY(6px);
     box-shadow:
       inset 0 1px 0 oklch(1 0 0 / 0.08),
-      0 0 0 var(--vol-accent, var(--x)),
-      0 0 0 oklch(0 0 0 / 0.45);
+      0 0 0 var(--vol-accent, var(--x));
   }
 
   /* Focus rings */

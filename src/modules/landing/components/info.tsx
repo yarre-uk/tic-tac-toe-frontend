@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 
-import { Text, VolButton } from '@/components';
+import { Button, Text } from '@/components';
 import { cn } from '@/lib/utils';
 
 export function LandingInfo({ className }: Readonly<{ className?: string }>) {
@@ -22,10 +22,10 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
 
       <div className="flex gap-2 md:gap-4">
         <Link to="/app">
-          <VolButton>Play Now</VolButton>
+          <Button>Play Now</Button>
         </Link>
         <Link to="/game">
-          <VolButton color="o">Create a room</VolButton>
+          <Button color="o">Create a room</Button>
         </Link>
       </div>
 
