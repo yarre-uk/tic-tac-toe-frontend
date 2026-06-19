@@ -99,7 +99,7 @@ export function RoomLobby({
       </CardContent>
 
       <CardFooter>
-        <Button variant="destructive" className="w-full" onClick={onLeave}>
+        <Button color="o" className="w-full" onClick={onLeave}>
           Leave room
         </Button>
       </CardFooter>
