@@ -20,14 +20,12 @@ function App() {
   return (
     <div>
       <div className="">
-        <Button>
-          <Link to="/">landing</Link>
+        <Button render={<Link to="/" />}>landing</Button>
+        <Button variant="outlined" render={<Link to="/app" />}>
+          app
         </Button>
-        <Button variant="outlined">
-          <Link to="/app">app</Link>
-        </Button>
-        <Button color="o">
-          <Link to="/game">game</Link>
+        <Button color="o" render={<Link to="/game" />}>
+          game
         </Button>
       </div>
       <p>isAuthorized {String(isAuthorized())}</p>

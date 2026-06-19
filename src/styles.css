@@ -242,10 +242,23 @@ input:-webkit-autofill {
       0 0 0 var(--vol-accent, var(--x));
   }
 
-  /* Focus rings */
-  .vol-base:focus-visible,
-  .vol-outlined:focus-visible {
-    outline: 2px solid var(--vol-focus, var(--x));
-    outline-offset: 3px;
+  @media (prefers-reduced-motion: reduce) {
+    .vol-btn {
+      transition: none;
+    }
+
+    .vol-base:hover,
+    .vol-base:active,
+    .vol-outlined:hover,
+    .vol-outlined:active {
+      transform: none;
+    }
   }
+}
+
+/* Outside any layer — beats @layer utilities, overrides outline-none */
+.vol-base:focus-visible,
+.vol-outlined:focus-visible {
+  outline: 2px solid var(--vol-focus, var(--x));
+  outline-offset: 3px;
 }
