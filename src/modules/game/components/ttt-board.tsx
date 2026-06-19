@@ -1,12 +1,18 @@
 import type { GameActions } from '../types';
 
 import { Button, Card, OMark, Text, XMark } from '@/components';
-import { cn, isDefined } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 function getCellVolClass(cell: string | null): string {
-  if (cell === 'X') return 'vol-base vol-x-dark bg-x-soft text-x border-x';
-  if (cell === 'O') return 'vol-base vol-o-dark border-o bg-o-soft text-o';
-  return 'vol-base vol-natural';
+  if (cell === 'X') {
+    return 'vol-x-dark bg-x-soft text-x border-x';
+  }
+
+  if (cell === 'O') {
+    return 'vol-o-dark border-o bg-o-soft text-o';
+  }
+
+  return 'vol-natural';
 }
 
 function getStatusText(
@@ -60,6 +66,7 @@ export function TTTBoard({
               key={i}
               role="button"
               tabIndex={isClickable ? 0 : -1}
+              variant={'base'}
               aria-label={
                 cell
                   ? `Cell ${String(i + 1)}, ${cell}`
@@ -92,11 +99,9 @@ export function TTTBoard({
       <div className="flex flex-col gap-2 md:gap-4">
         <Text
           className={cn(
-            'transition-all duration-100 ease-in-out',
-            currentPlayer === 'X' && 'text-x',
-            currentPlayer === 'O' && 'text-o',
-            isDefined(winner) && winner === 'X' && 'text-x',
-            isDefined(winner) && winner === 'O' && 'text-o',
+            'text-center transition-all duration-100 ease-in-out',
+            (currentPlayer === 'X' || winner === 'X') && 'text-x',
+            (currentPlayer === 'O' || winner === 'O') && 'text-o',
             status === 'draw' && 'text-foreground',
           )}
         >
