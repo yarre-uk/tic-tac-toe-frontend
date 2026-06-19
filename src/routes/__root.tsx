@@ -5,6 +5,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import appCss from '../styles.css?url';
 
+import { isFeatureEnabled } from '@/lib';
 import {
   BackgroundCanvas,
   useAuthRefresh,
@@ -39,16 +40,21 @@ export const Route = createRootRoute({
   ssr: false,
 });
 
-function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+function AuthHooks() {
   useAuthRefresh();
-  // Manages the WebSocket connection lifecycle — connects when a token is available,
-  // disconnects on logout. Must run after useAuthRefresh so the token is fresh.
   useSocketConnection();
-  // Fetches user profile once auth is ready and writes it to profileStore.
-  // Enabled only when isAuthorized(), so it never fires for unauthenticated users.
   useProfile();
 
-  return <>{children}</>;
+  return null;
+}
+
+function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {isFeatureEnabled('IS_AUTH_ENABLED') && <AuthHooks />}
+      {children}
+    </QueryClientProvider>
+  );
 }
 
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -61,21 +67,21 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
         <BackgroundCanvas />
 
         <div className="mx-auto max-w-270 px-4 md:px-10 lg:px-20 xl:px-0 2xl:max-w-390 2xl:px-10">
-          <QueryClientProvider client={queryClient}>
-            <AppShell>{children}</AppShell>
-          </QueryClientProvider>
+          <AppShell>{children}</AppShell>
 
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
+          {isFeatureEnabled('IS_DEV_TOOLS_ENABLED') && (
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+          )}
         </div>
         <Scripts />
       </body>

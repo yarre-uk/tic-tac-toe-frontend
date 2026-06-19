@@ -1,7 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
 import { Button } from '@/components';
+import { isFeatureEnabled } from '@/lib';
 import { isDefined } from '@/lib/utils';
 import {
   Chat,
@@ -15,6 +16,13 @@ import {
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,
+  beforeLoad: () => {
+    if (!isFeatureEnabled('IS_GAME_ENABLED')) {
+      throw redirect({
+        to: '/',
+      });
+    }
+  },
 });
 
 function RouteComponent() {

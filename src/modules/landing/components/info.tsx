@@ -21,8 +21,10 @@ export function LandingInfo({ className }: Readonly<{ className?: string }>) {
       <Text weight="light">made by / Yaroslav Syvukha</Text>
 
       <div className="flex gap-2 md:gap-4">
-        <Button render={<Link to="/app" />}>Play Now</Button>
-        <Button render={<Link to="/game" />} color="o">
+        <Button render={<Link to="/app" />} nativeButton={false}>
+          Play Now
+        </Button>
+        <Button render={<Link to="/game" />} nativeButton={false} color="o">
           Create a room
         </Button>
       </div>
