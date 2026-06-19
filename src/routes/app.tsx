@@ -20,21 +20,21 @@ function App() {
   return (
     <div>
       <div className="">
-        <Button>
-          <Link to="/">landing</Link>
+        <Button render={<Link to="/" />}>landing</Button>
+        <Button variant="outlined" render={<Link to="/app" />}>
+          app
         </Button>
-        <Button>
-          <Link to="/app">app</Link>
-        </Button>
-        <Button>
-          <Link to="/game">game</Link>
+        <Button color="o" render={<Link to="/game" />}>
+          game
         </Button>
       </div>
       <p>isAuthorized {String(isAuthorized())}</p>
       <p>isReady {String(isReady)}</p>
       <p>nickname {profile?.nickname}</p>
       <p>roomId {profile?.roomId}</p>
-      <Button onClick={handleRefetchProfile}>RefetchProfile</Button>
+      <Button color="natural" onClick={handleRefetchProfile}>
+        RefetchProfile
+      </Button>
     </div>
   );
 }

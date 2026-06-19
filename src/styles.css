@@ -9,6 +9,7 @@
   /* Surface / background */
   --bg-page: #0c0d13;
   --bg-panel: #2c2f34;
+  --bg-raised: #1e2229;
   --bg-cell: #0f1218;
 
   /* Lines / borders */
@@ -22,15 +23,20 @@
 
   /* X accent (blue) */
   --x: #59aaf8;
+  --x-deep: #4f6fbf;
   --x-soft: rgba(111, 155, 255, 0.14);
   --x-line: rgba(111, 155, 255, 0.35);
   --x-glow: rgba(111, 155, 255, 0.5);
 
   /* O accent (coral) */
   --o: #f3625d;
+  --o-deep: #c0533f;
   --o-soft: rgba(255, 118, 96, 0.14);
   --o-line: rgba(255, 118, 96, 0.35);
   --o-glow: rgba(255, 118, 96, 0.5);
+
+  --ink-on-accent: #1a1c20;
+  --line-strong: #5a5e66;
 
   /* Semantic (component layer) */
   --background: var(--bg-page);
@@ -65,6 +71,7 @@
   /* Surfaces */
   --color-bg-page: var(--bg-page);
   --color-bg-panel: var(--bg-panel);
+  --color-bg-raised: var(--bg-raised);
   --color-bg-cell: var(--bg-cell);
 
   /* Lines */
@@ -78,15 +85,20 @@
 
   /* X accent */
   --color-x: var(--x);
+  --color-x-deep: var(--x-deep);
   --color-x-soft: var(--x-soft);
   --color-x-line: var(--x-line);
   --color-x-glow: var(--x-glow);
 
   /* O accent */
   --color-o: var(--o);
+  --color-o-deep: var(--o-deep);
   --color-o-soft: var(--o-soft);
   --color-o-line: var(--o-line);
   --color-o-glow: var(--o-glow);
+
+  --color-ink-on-accent: var(--ink-on-accent);
+  --color-line-strong: var(--line-strong);
 
   /* Semantic (component layer) */
   --color-background: var(--background);
@@ -127,4 +139,126 @@ input:-webkit-autofill {
   transition:
     background-color 9999s ease-in-out,
     color 9999s ease-in-out;
+}
+
+@layer components {
+  .vol-btn {
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 90ms ease,
+      box-shadow 90ms ease;
+  }
+
+  /* Color tokens — set CSS vars consumed by vol-base and vol-outlined */
+  .vol-x {
+    --vol-face: var(--x);
+    --vol-lip: var(--x-deep);
+    --vol-accent: var(--x);
+    --vol-ink: var(--ink-on-accent);
+    --vol-hi: 0.35;
+    --vol-hi-active: 0.25;
+    --vol-focus: var(--x);
+  }
+
+  .vol-o {
+    --vol-face: var(--o);
+    --vol-lip: var(--o-deep);
+    --vol-accent: var(--o);
+    --vol-ink: var(--ink-on-accent);
+    --vol-hi: 0.3;
+    --vol-hi-active: 0.2;
+    --vol-focus: var(--o);
+  }
+
+  .vol-natural {
+    --vol-face: var(--bg-panel);
+    --vol-lip: var(--bg-raised);
+    --vol-ink: var(--ink);
+    --vol-hi: 0.08;
+    --vol-hi-active: 0.05;
+    --vol-focus: var(--line-strong);
+    border: 1px solid var(--line-strong);
+  }
+
+  /* Dark cell variants — face/text come from Tailwind utilities; only shadow vars are set */
+  .vol-x-dark {
+    --vol-lip: #1c2d4e;
+    --vol-hi: 0.06;
+    --vol-hi-active: 0.03;
+    --vol-focus: var(--x);
+  }
+
+  .vol-o-dark {
+    --vol-lip: #3d1e1d;
+    --vol-hi: 0.06;
+    --vol-hi-active: 0.03;
+    --vol-focus: var(--o);
+  }
+
+  /* vol-base — filled keycap */
+  .vol-base {
+    background: var(--vol-face);
+    color: var(--vol-ink);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / var(--vol-hi, 0.35)),
+      0 6px 0 var(--vol-lip);
+  }
+
+  .vol-base:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / var(--vol-hi, 0.35)),
+      0 4px 0 var(--vol-lip);
+  }
+
+  .vol-base:active {
+    transform: translateY(6px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / var(--vol-hi-active, 0.25)),
+      0 0 0 var(--vol-lip);
+  }
+
+  /* vol-outlined — neutral face, accent lip */
+  .vol-outlined {
+    background: var(--bg-panel);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.12),
+      0 6px 0 var(--vol-accent, var(--x));
+  }
+
+  .vol-outlined:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.12),
+      0 4px 0 var(--vol-accent, var(--x));
+  }
+
+  .vol-outlined:active {
+    transform: translateY(6px);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.08),
+      0 0 0 var(--vol-accent, var(--x));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vol-btn {
+      transition: none;
+    }
+
+    .vol-base:hover,
+    .vol-base:active,
+    .vol-outlined:hover,
+    .vol-outlined:active {
+      transform: none;
+    }
+  }
+}
+
+/* Outside any layer — beats @layer utilities, overrides outline-none */
+.vol-base:focus-visible,
+.vol-outlined:focus-visible {
+  outline: 2px solid var(--vol-focus, var(--x));
+  outline-offset: 3px;
 }

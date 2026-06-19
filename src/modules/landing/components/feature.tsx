@@ -48,7 +48,7 @@ function FeatureCard({
   const isX = index % 2 === 0;
 
   return (
-    <Card className="flex min-w-60 flex-col gap-5 p-4 lg:p-6">
+    <Card variant="base" className="flex min-w-60 flex-col gap-5 p-4 lg:p-6">
       <div className="flex items-start justify-between gap-2">
         <div
           className={cn(

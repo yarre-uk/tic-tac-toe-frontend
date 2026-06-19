@@ -1,23 +1,45 @@
+import { cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
+const cardVariants = cva(
+  cn(
+    'bg-bg-cell text-ink flex flex-col gap-4 overflow-hidden rounded-xl border py-4 text-sm',
+    'group/card border-line has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0',
+  ),
+  {
+    variants: {
+      variant: {
+        base: 'vol-base',
+        plain: '',
+      },
+      color: {
+        natural: 'vol-natural',
+        x: 'vol-x',
+        o: 'vol-o',
+        darkX: 'vol-x-dark',
+        darkO: 'vol-o-dark',
+      },
+    },
+    defaultVariants: {
+      variant: 'plain',
+      color: 'natural',
+    },
+  },
+);
+
 function Card({
   className,
-  size = 'default',
+  variant,
+  color,
   ...props
-}: React.ComponentProps<'div'> & { size?: 'default' | 'sm' }) {
+}: React.ComponentProps<'div'> & VariantProps<typeof cardVariants>) {
   return (
     <div
       data-slot="card"
-      data-size={size}
-      className={cn(
-        'bg-bg-cell text-ink flex flex-col gap-4 overflow-hidden rounded-xl border py-4 text-sm',
-        'group/card border-line has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0',
-        'data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0',
-        '*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl',
-        className,
-      )}
+      className={cn(cardVariants({ variant, color }), className)}
       {...props}
     />
   );
