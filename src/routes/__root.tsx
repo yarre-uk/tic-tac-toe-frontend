@@ -26,6 +26,10 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
+        name: 'apple-mobile-web-app-title',
+        content: 'Tic Tac Toe',
+      },
+      {
         title: 'Tic Tac Toe',
       },
     ],
@@ -33,6 +37,30 @@ export const Route = createRootRoute({
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: '/favicon-96x96.png',
+        sizes: '96x96',
+      },
+      {
+        rel: 'icon',
+        type: 'image/svg+xml',
+        href: '/favicon.svg',
+      },
+      {
+        rel: 'shortcut icon',
+        href: '/favicon.ico',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/apple-touch-icon.png',
+        sizes: '180x180',
+      },
+      {
+        rel: 'manifest',
+        href: '/site.webmanifest',
       },
     ],
   }),
