@@ -1,3 +1,4 @@
+import { cloudflare } from '@cloudflare/vite-plugin';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
@@ -22,6 +23,7 @@ const config = defineConfig({
     }),
     viteReact(),
     babel({ presets: [reactCompilerPreset()] }),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
   ],
 });
 
