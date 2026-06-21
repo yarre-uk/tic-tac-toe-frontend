@@ -5,7 +5,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import appCss from '../styles.css?url';
 
-import { isFeatureEnabled } from '@/lib';
+import { isFeatureEnabled, prefersReducedMotion } from '@/lib';
 import {
   BackgroundCanvas,
   useAuthRefresh,
@@ -92,7 +92,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
         <HeadContent />
       </head>
       <body className="relative min-h-screen overflow-x-hidden">
-        <BackgroundCanvas />
+        {!prefersReducedMotion() && <BackgroundCanvas />}
 
         <div className="mx-auto max-w-270 px-4 md:px-10 lg:px-20 xl:px-0 2xl:max-w-390 2xl:px-10">
           <AppShell>{children}</AppShell>

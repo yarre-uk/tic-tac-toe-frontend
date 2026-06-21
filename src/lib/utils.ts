@@ -46,3 +46,10 @@ export function randomInRange(min: number, max: number): number {
   // eslint-disable-next-line sonarjs/pseudo-random
   return min + Math.random() * (max - min);
 }
+
+export function prefersReducedMotion() {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}

@@ -241,19 +241,6 @@ input:-webkit-autofill {
       inset 0 1px 0 oklch(1 0 0 / 0.08),
       0 0 0 var(--vol-accent, var(--x));
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .vol-btn {
-      transition: none;
-    }
-
-    .vol-base:hover,
-    .vol-base:active,
-    .vol-outlined:hover,
-    .vol-outlined:active {
-      transform: none;
-    }
-  }
 }
 
 /* Outside any layer — beats @layer utilities, overrides outline-none */
@@ -261,4 +248,13 @@ input:-webkit-autofill {
 .vol-outlined:focus-visible {
   outline: 2px solid var(--vol-focus, var(--x));
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
