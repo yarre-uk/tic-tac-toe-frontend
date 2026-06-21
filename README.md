@@ -17,9 +17,9 @@ Multiplayer Tic Tac Toe client built with TanStack Start, React 19, and Socket.i
 ## Getting started
 
 ```bash
-npm install
+yarn
 cp .env.example .env   # fill in required values
-npm run dev
+yarn dev
 ```
 
 ## Environment variables
@@ -38,13 +38,13 @@ Feature flags are coerced to booleans and validated at startup via Zod. The app 
 ## Scripts
 
 ```bash
-npm run dev       # dev server
-npm run build     # production build
-npm run deploy    # build + deploy to Cloudflare Workers
-npm run test      # Vitest
-npm run lint      # ESLint
-npm run format    # Prettier
-npm run check     # lint + format check
+yarn dev          # dev server
+yarn build        # production build
+yarn deploy       # build + deploy to Cloudflare Workers
+yarn test         # Vitest
+yarn lint         # ESLint
+yarn format       # Prettier
+yarn check        # lint + format check
 ```
 
 ## Project structure
@@ -65,7 +65,7 @@ src/
     chat/            # in-game chat
     landing/         # landing page with animated background canvas
   components/
-    ui/              # Button (vol keycap system), Card, Input, etc.
+    ui/              # Button, Card, Input and other primitives
   lib/
     env.ts           # Zod-validated env vars
     flags.ts         # isFeatureEnabled() feature flag helper
@@ -87,7 +87,7 @@ Adding a new flag: add `VITE_<NAME>_FLAG` to `EnvSchema` in `src/lib/env.ts` —
 ## Deployment
 
 ```bash
-npm run deploy
+yarn deploy
 ```
 
-Deploys to Cloudflare Workers via Wrangler. Configuration is in `wrangler.json`. Set production env vars in the Cloudflare dashboard or via `wrangler secret put`.
+Deploys to Cloudflare Workers via Wrangler. Configuration is in `wrangler.jsonc`. Set production env vars in the Cloudflare dashboard or via `wrangler secret put`.
