@@ -41,6 +41,10 @@ jobs:
     env: 
       VITE_API_URL: ${{ vars.VITE_API_URL }}
       VITE_WS_URL: ${{ vars.VITE_WS_URL }}
+      VITE_IS_APP_ENABLED_FLAG: ${{ vars.VITE_IS_APP_ENABLED_FLAG }}
+      VITE_IS_GAME_ENABLED_FLAG: ${{ vars.VITE_IS_GAME_ENABLED_FLAG }}
+      VITE_IS_AUTH_ENABLED_FLAG: ${{ vars.VITE_IS_AUTH_ENABLED_FLAG }}
+      VITE_IS_DEV_TOOLS_ENABLED_FLAG: ${{ vars.VITE_IS_DEV_TOOLS_ENABLED_FLAG }}
     steps:
       - uses: actions/checkout@v4
 
