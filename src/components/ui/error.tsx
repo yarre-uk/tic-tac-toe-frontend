@@ -3,7 +3,7 @@ import type { VariantProps } from 'class-variance-authority';
 import { Text } from './text';
 import type { textVariants } from './text';
 
-import { isDefined } from '@/lib/utils';
+import { isDefined } from '@/lib';
 
 type ErrorProps = Readonly<{
   size?: VariantProps<typeof textVariants>['size'];

@@ -8,7 +8,7 @@ import type {
 } from '../types';
 
 import { MARK_ARM, MARK_RADIUS, MARK_STROKE } from '@/constants';
-import { randomInRange } from '@/lib/utils';
+import { randomInRange } from '@/lib';
 
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
 let width = 0;

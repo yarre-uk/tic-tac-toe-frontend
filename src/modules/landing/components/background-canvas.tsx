@@ -4,7 +4,7 @@ import type { WorkerMessage } from '../types';
 import BackgroundWorker from '../workers/background.worker?worker';
 
 import { useResizeObserver } from '@/hooks/use-resize';
-import { isDefined } from '@/lib/utils';
+import { isDefined } from '@/lib';
 
 function send(
   worker: Worker,

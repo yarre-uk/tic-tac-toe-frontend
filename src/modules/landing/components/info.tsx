@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
 import { Button, Text } from '@/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib';
 
 export function LandingInfo({ className }: Readonly<{ className?: string }>) {
   return (

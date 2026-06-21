@@ -4,8 +4,7 @@ import { useRoomStore } from '../store';
 import type { CreateRoomPayload, Room, WsError } from '../types';
 
 import { SocketEvent } from '@/constants/socket-events';
-import { emitWithRetry, getSocket } from '@/lib/socket';
-import { isDefined } from '@/lib/utils';
+import { emitWithRetry, getSocket, isDefined } from '@/lib';
 import { useSocketStore } from '@/modules/auth/socket-store';
 import { useProfileStore } from '@/modules/profile/store';
 

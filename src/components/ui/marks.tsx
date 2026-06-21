@@ -1,5 +1,5 @@
 import { MARK_RADIUS, MARK_SIZE, MARK_STROKE, MARK_VIEWBOX } from '@/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib';
 
 export function XMark({ className }: Readonly<{ className?: string }>) {
   const V = MARK_VIEWBOX;

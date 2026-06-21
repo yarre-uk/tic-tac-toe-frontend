@@ -16,7 +16,7 @@ import {
   Label,
   Text,
 } from '@/components';
-import { isDefined } from '@/lib/utils';
+import { isDefined } from '@/lib';
 import { useSignUpMutation } from '@/modules';
 import type { SignUpDto } from '@/modules';
 

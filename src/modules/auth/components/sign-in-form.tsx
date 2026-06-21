@@ -15,7 +15,7 @@ import {
   Input,
   Label,
 } from '@/components';
-import { isDefined } from '@/lib/utils';
+import { isDefined } from '@/lib';
 import { useSignInMutation } from '@/modules';
 import type { SignInDto } from '@/modules';
 

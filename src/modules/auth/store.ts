@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { isDefined } from '@/lib/utils';
+import { isDefined } from '@/lib';
 
 interface AuthStore {
   accessToken: string | null;

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useProfileStore } from '../store';
 import type { UserProfile } from '../types';
 
-import { apiAuth } from '@/lib/axios';
+import { apiAuth } from '@/lib';
 import { useAuthStore } from '@/modules';
 import type { ApiResult } from '@/types';
 

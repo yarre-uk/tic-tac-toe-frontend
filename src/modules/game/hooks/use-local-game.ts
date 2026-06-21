@@ -1,7 +1,7 @@
 import { useBoardStore } from '../store';
 import type { Cell, GameActions, GameStatus, Player } from '../types';
 
-import { isDefined } from '@/lib/utils';
+import { isDefined } from '@/lib';
 
 const WIN_LINES: Array<[number, number, number]> = [
   [0, 1, 2],

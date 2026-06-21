@@ -3,9 +3,7 @@ import { useEffect } from 'react';
 import { useSocketStore } from '../socket-store';
 import { useAuthStore } from '../store';
 
-import { api } from '@/lib/axios';
-import { connectSocket, disconnectSocket } from '@/lib/socket';
-import { isDefined } from '@/lib/utils';
+import { api, connectSocket, disconnectSocket, isDefined } from '@/lib';
 import type { ApiResult } from '@/types';
 
 /**

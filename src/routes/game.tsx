@@ -2,8 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
 import { Button } from '@/components';
-import { isFeatureEnabled } from '@/lib';
-import { isDefined } from '@/lib/utils';
+import { isDefined, isFeatureEnabled } from '@/lib';
 import {
   Chat,
   RoomLobby,

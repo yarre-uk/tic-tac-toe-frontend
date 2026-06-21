@@ -1,5 +1,5 @@
 import { Text } from '@/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib';
 
 export function LandingTitle({ className }: Readonly<{ className?: string }>) {
   return (

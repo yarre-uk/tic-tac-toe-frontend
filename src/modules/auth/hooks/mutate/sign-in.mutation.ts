@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import type { SignInDto, TokenResponseDto } from '../../types';
 
-import { api } from '@/lib/axios';
+import { api } from '@/lib';
 import { useAuthStore } from '@/modules';
 import type { ApiResult } from '@/types';
 

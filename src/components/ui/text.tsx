@@ -2,7 +2,7 @@ import { cva } from 'class-variance-authority';
 import type { VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithoutRef, ElementType } from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib';
 
 const textVariants = cva('', {
   variants: {

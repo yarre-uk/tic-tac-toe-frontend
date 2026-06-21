@@ -1,7 +1,7 @@
 import type { GameActions } from '../types';
 
 import { Button, Card, OMark, Text, XMark } from '@/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib';
 
 function getCellVolClass(cell: string | null): string {
   if (cell === 'X') {

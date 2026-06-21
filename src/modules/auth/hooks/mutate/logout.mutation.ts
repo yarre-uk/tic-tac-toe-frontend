@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { apiAuth } from '@/lib/axios';
+import { apiAuth } from '@/lib';
 import { useAuthStore } from '@/modules';
 
 export const useSignOutMutation = () => {

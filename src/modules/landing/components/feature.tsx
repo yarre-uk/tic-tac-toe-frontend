@@ -1,5 +1,5 @@
 import { Card, Text } from '@/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib';
 
 interface FeatureCardProps {
   index: number;

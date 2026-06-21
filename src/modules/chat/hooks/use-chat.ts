@@ -3,9 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage } from '../types';
 
 import { SocketEvent } from '@/constants/socket-events';
-import { apiAuth } from '@/lib/axios';
-import { emitWithRetry, getSocket } from '@/lib/socket';
-import { isDefined } from '@/lib/utils';
+import { apiAuth, emitWithRetry, getSocket, isDefined } from '@/lib';
 import { useSocketStore } from '@/modules/auth/socket-store';
 import type { ApiResult } from '@/types';
 

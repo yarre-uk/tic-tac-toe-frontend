@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-import { api } from '@/lib/axios';
+import { api } from '@/lib';
 import type { TokenResponseDto } from '@/modules';
 import { useAuthStore } from '@/modules/auth/store';
 import type { ApiResult } from '@/types';

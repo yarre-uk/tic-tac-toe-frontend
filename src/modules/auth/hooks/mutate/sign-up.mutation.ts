@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { api } from '@/lib/axios';
-import { clearObject } from '@/lib/utils';
+import { api, clearObject } from '@/lib';
 import { useAuthStore } from '@/modules';
 import type { SignUpDto, TokenResponseDto } from '@/modules';
 import type { ApiResult } from '@/types';
