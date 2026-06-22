@@ -32,6 +32,7 @@ export const Route = createRootRoute({
 
       /* Open Graph — LinkedIn, Discord, Slack, WhatsApp, Facebook */
       { property: 'og:type', content: 'website' },
+      { property: 'author', content: 'Yaroslav Syvukha' },
       { property: 'og:url', content: 'https://ttt.yarre.uk' },
       { property: 'og:title', content: 'Tic Tac Toe' },
       {
