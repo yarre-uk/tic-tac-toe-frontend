@@ -2,6 +2,9 @@
 
 Multiplayer Tic Tac Toe client built with TanStack Start, React 19, and Socket.io. Deployed to Cloudflare Workers.
 
+## Preview
+![](./readme/preview.webp)
+
 ## Stack
 
 | Layer | Library |
