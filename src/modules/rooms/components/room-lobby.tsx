@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import { Link } from 'lucide-react';
 import { useState } from 'react';
 
 import type { Room } from '../types';
@@ -12,6 +14,7 @@ import {
   Input,
   Text,
 } from '@/components';
+import { Envs } from '@/lib';
 
 interface RoomLobbyProps {
   room: Room;
@@ -28,8 +31,19 @@ export function RoomLobby({
 }: Readonly<RoomLobbyProps>) {
   const [name, setName] = useState(room.name ?? '');
 
+  const handleShareRoom = async () => {
+    // Clipboard.
+    const type = 'text/plain';
+
+    const clipboardItemData = {
+      [type]: `${Envs.VITE_LINK_URL}game?id=${room.id}`,
+    };
+    const clipboardItem = new ClipboardItem(clipboardItemData);
+    await navigator.clipboard.write([clipboardItem]);
+  };
+
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full">
       <CardHeader className="border-line border-b">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
@@ -39,17 +53,27 @@ export function RoomLobby({
             </Text>
           </div>
 
-          <span
-            className={[
-              'rounded-full px-3 py-1 text-xs font-medium',
-              room.status === 'Waiting' && 'bg-x-soft text-x',
-              room.status === 'Playing' && 'bg-o-soft text-o',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {room.status}
-          </span>
+          <div className="flex flex-row items-center gap-4">
+            <Button
+              variant="outlined"
+              className="p-2"
+              onClick={handleShareRoom}
+            >
+              <Link size={16} />
+            </Button>
+
+            <span
+              className={[
+                'rounded-full px-3 py-1 text-xs font-medium',
+                room.status === 'Waiting' && 'bg-x-soft text-x',
+                room.status === 'Playing' && 'bg-o-soft text-o',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {room.status}
+            </span>
+          </div>
         </div>
       </CardHeader>
 

@@ -1,5 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
+import z from 'zod';
 
 import { Button } from '@/components';
 import { isDefined, isFeatureEnabled } from '@/lib';
@@ -13,8 +14,13 @@ import {
   useSocketStore,
 } from '@/modules';
 
+const gamePageSearchSchema = z.object({
+  id: z.uuid().optional(),
+});
+
 export const Route = createFileRoute('/game')({
   component: RouteComponent,
+  validateSearch: gamePageSearchSchema,
   beforeLoad: () => {
     if (!isFeatureEnabled('IS_GAME_ENABLED')) {
       throw redirect({
@@ -25,7 +31,10 @@ export const Route = createFileRoute('/game')({
 });
 
 function RouteComponent() {
-  const { room, create, rejoin, update, leave } = useRoom();
+  const { id } = Route.useSearch();
+  const navigate = useNavigate();
+
+  const { room, create, join, rejoin, update, leave } = useRoom();
   const currentUser = useCurrentUser();
   const profileRoomId = useProfileStore((s) => s.profile?.roomId ?? null);
   const socketVersion = useSocketStore((s) => s.version);
@@ -51,6 +60,18 @@ function RouteComponent() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketVersion]);
+
+  useEffect(() => {
+    if (room?.id !== id && isDefined(id)) {
+      join(id);
+
+      void navigate({
+        to: '.',
+        search: () => ({}),
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, room?.id]);
 
   if (!room) {
     return (

@@ -147,6 +147,8 @@ input:-webkit-autofill {
     transition:
       transform 90ms ease,
       box-shadow 90ms ease;
+
+    margin-bottom: 6px;
   }
 
   /* Color tokens — set CSS vars consumed by vol-base and vol-outlined */
